@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""อัปเดต prices.json อัตโนมัติ: ให้ Claude ค้นเว็บหาราคาล่าสุด แล้วตรวจความสมเหตุสมผลก่อนบันทึก
+"""อัปเดต prices.json อัตโนมัติ: ให้ OpenAI ค้นเว็บหาราคาล่าสุด แล้วตรวจความสมเหตุสมผลก่อนบันทึก
 
-ติดตั้ง : pip install anthropic
-ตั้งค่า  : export ANTHROPIC_API_KEY=sk-ant-...
+ติดตั้ง : pip install openai
+ตั้งค่า  : export OPENAI_API_KEY=sk-...   (เลือกรุ่นได้ด้วย OPENAI_MODEL)
 รัน     : python update_prices.py
 ตั้งเวลา : cron รายวัน เช่น  0 6 * * *  cd /path/to/site && python update_prices.py
 วางผล   : prices.json ต้องอยู่โฟลเดอร์เดียวกับ index.html บนเซิร์ฟเวอร์ของคุณ
 """
-import anthropic, json, re, datetime, pathlib
+import os, json, re, datetime, pathlib
+from openai import OpenAI
 
 OUT = pathlib.Path("prices.json")
-MODEL = "claude-sonnet-5-5"
+MODEL = os.environ.get("OPENAI_MODEL", "gpt-5")  # ต้องเป็นรุ่นที่รองรับ web_search
 
 # id: (ชื่อวัสดุ, หน่วย, ราคาตั้งต้นในหน้าเว็บ) ราคาตั้งต้นใช้เป็นกรอบตรวจ 0.5x-2x
 MAT = {
@@ -36,16 +37,13 @@ prompt = f"""วันนี้ {today} ค้นเว็บหาราคา�
 ตอบเป็น JSON อย่างเดียว รูปแบบ {{"id": {{"price": ตัวเลข, "source": "URL หน้าที่พบราคา", "date": "YYYY-MM-DD ของราคานั้น"}}}}
 ถ้าหาแหล่งที่ยืนยันราคาไม่ได้ ให้ใส่ null ห้ามเดาหรือประมาณเอง"""
 
-client = anthropic.Anthropic()
-msgs = [{"role": "user", "content": prompt}]
-tools = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 20}]
-for _ in range(5):  # web search อาจหยุดพักกลางทาง (pause_turn) ให้ทำต่อ
-    r = client.messages.create(model=MODEL, max_tokens=4000, tools=tools, messages=msgs)
-    if r.stop_reason != "pause_turn":
-        break
-    msgs.append({"role": "assistant", "content": r.content})
-
-text = "".join(b.text for b in r.content if b.type == "text")
+client = OpenAI()  # อ่านคีย์จาก OPENAI_API_KEY
+r = client.responses.create(
+    model=MODEL,
+    input=prompt,
+    tools=[{"type": "web_search", "user_location": {"type": "approximate", "country": "TH"}}],
+)
+text = r.output_text
 m = re.search(r"\{.*\}", text, re.S)
 data = json.loads(m.group(0)) if m else {}
 
