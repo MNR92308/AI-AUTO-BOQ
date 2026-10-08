@@ -1,0 +1,35 @@
+{
+ "updated": "2026-10-08",
+ "items": {
+  "conc": {
+   "price": 2780.98,
+   "source": "https://kkpao.go.th/dep/publicworks/menu5-ConstructPrice_cate5-menuid43",
+   "date": "2026-08-01"
+  },
+  "rebar": {
+   "price": 22.69,
+   "source": "https://www.steellead.com/round-bar-price.html",
+   "date": "2026-10-08"
+  },
+  "steel": {
+   "price": 27.3,
+   "source": "https://www.sbsteel.co.th/steel-price/",
+   "date": "2026-10-07"
+  },
+  "cem": {
+   "price": 135.0,
+   "source": "https://hubmao.com/blog/09-materials-price.html",
+   "date": "2026-01-01"
+  },
+  "sand": {
+   "price": 350.0,
+   "source": "https://hubmao.com/blog/09-materials-price.html",
+   "date": "2026-01-01"
+  },
+  "aac": {
+   "price": 24.77,
+   "source": "https://kkpao.go.th/dep/publicworks/menu5-ConstructPrice_cate5-menuid43",
+   "date": "2026-08-01"
+  }
+ }
+}
