@@ -16,8 +16,8 @@ jobs:
       - run: pip install openai
       - run: python update_prices.py
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # OPENAI_MODEL: gpt-5   # ไม่บังคับ ใช้เปลี่ยนรุ่น
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # OPENROUTER_MODEL: anthropic/claude-sonnet-4.5   # ไม่บังคับ ใช้เปลี่ยนรุ่น
       - name: Commit prices.json
         run: |
           git config user.name "price-bot"
