@@ -50,8 +50,7 @@ client = OpenAI(
 # เปิดการค้นเว็บของ OpenRouter ผ่าน web plugin (ใช้ได้กับทุกโมเดล)
 r = client.chat.completions.create(
     model=MODEL,
-    max_tokens=2000,
-    messages=[{"role": "user", "content": prompt}],
+    max_tokens=2000,messages=[{"role": "user", "content": prompt}],
     extra_body={"plugins": [{"id": "web", "max_results": 10}]},
 )
 
