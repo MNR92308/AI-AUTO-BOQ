@@ -1,0 +1,25 @@
+name: update-prices
+on:
+  schedule:
+    - cron: '0 23 * * *'   # 06:00 น. เวลาไทย
+  workflow_dispatch:       # ให้กดรันเองได้
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install anthropic
+      - run: python update_prices.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Commit prices.json
+        run: |
+          git config user.name "price-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add prices.json
+          git diff --cached --quiet || (git commit -m "update prices" && git push)
