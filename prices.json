@@ -9,7 +9,7 @@
   "rebar": {
    "price": 22.69,
    "source": "https://www.steellead.com/round-bar-price.html",
-   "date": "2026-10-08"
+   "date": "2026-09-28"
   },
   "steel": {
    "price": 27.3,
@@ -19,12 +19,12 @@
   "cem": {
    "price": 135.0,
    "source": "https://hubmao.com/blog/09-materials-price.html",
-   "date": "2026-01-01"
+   "date": "2026-09-01"
   },
   "sand": {
    "price": 350.0,
    "source": "https://hubmao.com/blog/09-materials-price.html",
-   "date": "2026-01-01"
+   "date": "2026-09-01"
   },
   "aac": {
    "price": 24.77,
