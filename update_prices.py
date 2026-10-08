@@ -38,9 +38,13 @@ prompt = f"""วันนี้ {today} ค้นเว็บหาราคา�
 ตอบเป็น JSON อย่างเดียว รูปแบบ {{"id": {{"price": ตัวเลข, "source": "URL หน้าที่พบราคา", "date": "YYYY-MM-DD ของราคานั้น"}}}}
 ถ้าหาแหล่งที่ยืนยันราคาไม่ได้ ให้ใส่ null ห้ามเดาหรือประมาณเอง"""
 
+api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+if not api_key:
+    raise SystemExit("ไม่พบ OPENROUTER_API_KEY — ตรวจชื่อ secret ใน GitHub Actions")
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
+    api_key=api_key,
 )
 
 # เปิดการค้นเว็บของ OpenRouter ผ่าน web plugin (ใช้ได้กับทุกโมเดล)
