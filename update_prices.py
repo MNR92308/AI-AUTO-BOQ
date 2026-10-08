@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""อัปเดต prices.json อัตโนมัติ: ให้ OpenAI ค้นเว็บหาราคาล่าสุด แล้วตรวจความสมเหตุสมผลก่อนบันทึก
+"""อัปเดต prices.json อัตโนมัติ: ให้ LLM (ผ่าน OpenRouter) ค้นเว็บหาราคาล่าสุด แล้วตรวจความสมเหตุสมผลก่อนบันทึก
 
 ติดตั้ง : pip install openai
-ตั้งค่า  : export OPENAI_API_KEY=sk-...   (เลือกรุ่นได้ด้วย OPENAI_MODEL)
+ตั้งค่า  : export OPENROUTER_API_KEY=sk-or-...
+          export OPENROUTER_MODEL=anthropic/claude-sonnet-4.5   # ไม่บังคับ
 รัน     : python update_prices.py
 ตั้งเวลา : cron รายวัน เช่น  0 6 * * *  cd /path/to/site && python update_prices.py
 วางผล   : prices.json ต้องอยู่โฟลเดอร์เดียวกับ index.html บนเซิร์ฟเวอร์ของคุณ
@@ -11,7 +12,7 @@ import os, json, re, datetime, pathlib
 from openai import OpenAI
 
 OUT = pathlib.Path("prices.json")
-MODEL = os.environ.get("OPENAI_MODEL", "gpt-5")  # ต้องเป็นรุ่นที่รองรับ web_search
+MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.5")
 
 # id: (ชื่อวัสดุ, หน่วย, ราคาตั้งต้นในหน้าเว็บ) ราคาตั้งต้นใช้เป็นกรอบตรวจ 0.5x-2x
 MAT = {
@@ -37,15 +38,34 @@ prompt = f"""วันนี้ {today} ค้นเว็บหาราคา�
 ตอบเป็น JSON อย่างเดียว รูปแบบ {{"id": {{"price": ตัวเลข, "source": "URL หน้าที่พบราคา", "date": "YYYY-MM-DD ของราคานั้น"}}}}
 ถ้าหาแหล่งที่ยืนยันราคาไม่ได้ ให้ใส่ null ห้ามเดาหรือประมาณเอง"""
 
-client = OpenAI()  # อ่านคีย์จาก OPENAI_API_KEY
-r = client.responses.create(
-    model=MODEL,
-    input=prompt,
-    tools=[{"type": "web_search", "user_location": {"type": "approximate", "country": "TH"}}],
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ["OPENROUTER_API_KEY"],
 )
-text = r.output_text
+
+# เปิดการค้นเว็บของ OpenRouter ผ่าน web plugin (ใช้ได้กับทุกโมเดล)
+r = client.chat.completions.create(
+    model=MODEL,
+    max_tokens=4000,
+    messages=[{"role": "user", "content": prompt}],
+    extra_body={"plugins": [{"id": "web", "max_results": 10}]},
+)
+
+msg = r.choices[0].message
+text = msg.content or ""
 m = re.search(r"\{.*\}", text, re.S)
-data = json.loads(m.group(0)) if m else {}
+try:
+    data = json.loads(m.group(0)) if m else {}
+except json.JSONDecodeError:
+    data = {}
+
+# URL ที่ OpenRouter ค้นเจอจริง (ใช้ตรวจว่าโมเดลไม่ได้แต่ง source ขึ้นเอง)
+cited = set()
+for a in (getattr(msg, "annotations", None) or []):
+    a = a if isinstance(a, dict) else a.model_dump()
+    u = (a.get("url_citation") or {}).get("url")
+    if u:
+        cited.add(u.rstrip("/"))
 
 old = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
 items = dict(old.get("items", {}))  # ค่าเดิมคงไว้ถ้ารอบนี้ไม่ผ่านการตรวจ
@@ -57,8 +77,10 @@ for k, (_, _, base) in MAT.items():
         p = float(x["price"])
     except (KeyError, TypeError, ValueError):
         continue
-    if str(x.get("source", "")).startswith("http") and base * 0.5 <= p <= base * 2:
-        items[k] = {"price": p, "source": x["source"], "date": x.get("date", today)}
+    src = str(x.get("source", ""))
+    src_ok = src.startswith("http") and (not cited or src.rstrip("/") in cited)
+    if src_ok and base * 0.5 <= p <= base * 2:
+        items[k] = {"price": p, "source": src, "date": x.get("date", today)}
     else:
         print("ข้าม", k, x)
 
