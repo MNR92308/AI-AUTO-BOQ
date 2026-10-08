@@ -180,6 +180,9 @@ tbody tr:hover td{background:color-mix(in srgb,var(--ac) 7%,transparent)}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+input.ov{border-color:var(--hi);background:color-mix(in srgb,var(--hi) 22%,var(--bg))}
+#bb td input{width:84px}
 textarea{width:100%;font:inherit;font-size:.85rem;padding:6px 8px;border:1px solid var(--ln);border-radius:4px;background:var(--bg);color:var(--ink);resize:vertical}
 input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
 @media print{#p-cal{display:none!important}}
@@ -206,7 +209,18 @@ input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
  <aside class="in">
   <div class="pn"><h2>ข้อมูลโครงการ</h2>
    <div class="g2"><div><label for="sp">ระดับวัสดุตกแต่ง</label><select id="sp"></select></div><div><label for="rg">พื้นที่ก่อสร้าง</label><select id="rg"></select></div>
-   <div><label for="ht">ความสูงต่อชั้น (ม.)</label><input id="ht" type="number" step=".1" min="2.4" value="3"></div><div><label for="ff">Factor F</label><input id="ff" type="number" step=".01" min="1" value="1.27"></div></div><label for="rt">รูปแบบหลังคา</label><select id="rt"><option value="จั่ว">หลังคาจั่ว</option><option value="ดาดฟ้า">ดาดฟ้า (พื้นคอนกรีต)</option></select>
+   <div><label for="ht">ความสูงต่อชั้น (ม.)</label><input id="ht" type="number" step=".1" min="2.4" value="3"></div><div><label for="ff">Factor F</label><input id="ff" type="number" step=".01" min="1" value="1.27"></div></div></div>
+  </div>
+  <div class="pn"><h2>หลังคา และขนาดวัสดุ</h2>
+   <label for="rt">รูปทรงหลังคา</label><select id="rt"><option value="จั่ว">หลังคาจั่ว</option><option value="ปั้นหยา">หลังคาปั้นหยา</option><option value="เพิงหมาแหงน">หลังคาเพิงหมาแหงน (ลาดเดียว)</option><option value="ดาดฟ้า">ดาดฟ้า (พื้นคอนกรีต)</option></select>
+   <div class="g2"><div><label for="rsl">ความลาดชัน (องศา)</label><input class="ri" id="rsl" type="number" min="5" max="60" value="25"></div><div><label for="rov">ชายคายื่น (ม.)</label><input class="ri" id="rov" type="number" min="0" step=".1" value=".6"></div>
+   <div><label for="rc">วัสดุมุงหลังคา</label><select class="ri" id="rc"><option value="ctile">กระเบื้องลอนคู่</option><option value="cconc">กระเบื้องคอนกรีต</option><option value="clay">กระเบื้องเซรามิก/ดินเผา</option><option value="metal">เมทัลชีท</option><option value="pu">เมทัลชีทพียูโฟม</option></select></div><div><label for="rcm">ความหนาเมทัลชีท (มม.)</label><input class="ri" id="rcm" type="number" min=".2" step=".01" value=".35"></div></div>
+   <label for="tt1">โครงหลัก (โครงถัก): ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt1"><option value="b">เหล็กกล่อง</option><option value="c">เหล็กตัวซี (C)</option></select><input class="ri" id="ts" type="number" min=".5" step=".1" value="3" aria-label="ระยะห่างโครงหลัก (ม.)"></div>
+   <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b1" type="number" min="10" value="50" aria-label="กว้าง"><input class="ri" id="h1" type="number" min="10" value="100" aria-label="สูง"><input class="ri" id="t1" type="number" min=".5" step=".1" value="2.3" aria-label="ความหนา"></div>
+   <label for="tt2">แปหลังคา: ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt2"><option value="b">เหล็กกล่อง</option><option value="c" selected>เหล็กตัวซี (C)</option></select><input class="ri" id="ps" type="number" min=".3" step=".05" value=".9" aria-label="ระยะห่างแป (ม.)"></div>
+   <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b2" type="number" min="10" value="45" aria-label="กว้าง"><input class="ri" id="h2" type="number" min="10" value="75" aria-label="สูง"><input class="ri" id="t2" type="number" min=".5" step=".1" value="1.6" aria-label="ความหนา"></div>
+   <label for="dk">ความหนาพื้นดาดฟ้า (ซม.) ใช้เมื่อเลือกดาดฟ้า</label><input class="ri" id="dk" type="number" min="8" value="15">
+   <p class="nt">น้ำหนักเหล็กคำนวณจากขนาดและความหนาที่กรอก × ราคา/กก. (แก้ราคาได้ในตาราง BOQ)</p>
   </div>
   <div class="pn"><h2>ผังห้อง (ใช้ถอดปริมาณ)</h2>
    <div class="rm rh"><span>ห้อง</span><span>กว้าง</span><span>ยาว</span><span>ชั้น</span><span>ประเภท</span><span></span></div>
@@ -222,7 +236,7 @@ input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
   <div class="tabs" role="tablist"><button class="on" data-t="boq" role="tab">ใบ BOQ</button><button data-t="fc" role="tab">พยากรณ์ราคาวัสดุ</button><button data-t="sum" role="tab">สรุปส่งลูกค้า</button><button data-t="cal" role="tab">ปรับเทียบ BOQ จริง</button></div>
   <div class="pn t" id="p-boq">
    <button class="cp" id="cp">คัดลอกตาราง</button><span id="cpm" class="nt"></span>
-   <p class="nt" id="kfn"></p><h2>สัดส่วนต้นทุนตามหมวดงาน</h2><div class="stk" id="stk"></div><div class="bars" id="bars"></div>
+   <p class="nt" id="kfn"></p><p class="nt" id="rsp"></p><p class="nt">แก้ราคาวัสดุและค่าแรงต่อหน่วยได้ในตารางด้านล่าง (ช่องที่แก้จะเป็นสีเหลือง และเป็นราคาสุทธิ ไม่คูณระดับวัสดุ/ภูมิภาค) <button class="cp" id="ovr" style="float:none">ล้างราคาที่แก้เอง</button></p><h2>สัดส่วนต้นทุนตามหมวดงาน</h2><div class="stk" id="stk"></div><div class="bars" id="bars"></div>
    <div class="sc"><table id="bq"><thead><tr><th>รายการ</th><th>หน่วย</th><th>ปริมาณ</th><th>ราคาวัสดุ/หน่วย</th><th>ค่าแรง/หน่วย</th><th>รวม (บาท)</th></tr></thead><tbody id="bb"></tbody></table></div>
    <p class="nt">ปริมาณคำนวณจากอัตราส่วนเฉลี่ยของบ้านคอนกรีตเสริมเหล็ก ใช้ประเมินเบื้องต้นเท่านั้น (คลาดเคลื่อนได้ราว ±15–20%) ควรถอดแบบจริงก่อนทำสัญญา</p>
   </div>
@@ -284,28 +298,41 @@ const st={price:Object.fromEntries(Object.entries(MAT).map(([k,v])=>[k,v[2]])),s
 const pr=(k,m)=>st.price[k]*(m?FC[k].f[m-1]:1);
 let rooms=[['ห้องนั่งเล่น',5,6,1,0],['ครัว',3,4,1,0],['ห้องน้ำ',1.8,2.4,1,1],['โรงรถ',3,6,1,2],['ห้องนอนใหญ่',4,5,2,0],['ห้องนอน 2',3,4,2,0],['ห้องนอน 3',3,3.5,2,0],['ห้องน้ำ',1.8,2.4,2,1],['ระเบียง',2,4,2,2]].map(([n,w,l,f,t])=>({n,w,l,f,t}));
 
+const ni=(q,d)=>{const v=parseFloat($(q).value);return v>0?v:d},
+kgm=(y,b,h,t)=>(y=='c'?t*(h+2*b+40):2*t*(b+h-2*t))*7.85e-3,
+sx=(y,b,h,t)=>(y=='c'?'C ':'กล่อง ')+b+'×'+h+'×'+t+' มม.';
+function cover(){const k=$('#rc').value,t=ni('#rcm',.35);return({ctile:['กระเบื้องลอนคู่',0,120,'roof'],cconc:['กระเบื้องคอนกรีต',480,150,0],clay:['กระเบื้องเซรามิก/ดินเผา',690,180,0],metal:['เมทัลชีท',Math.round(430*t),90,0],pu:['เมทัลชีทพียูโฟม',Math.round(430*t+190),110,0]})[k]}
+function roof(fp){
+ const k=$('#rt').value,a=Math.min(ni('#rsl',25),60)*Math.PI/180,o=Math.max(0,+$('#rov').value||0),F0=Math.max(fp,6),w0=Math.sqrt(F0*1.3),d0=F0/w0,w=w0+2*o,d=d0+2*o,hip=k=='ปั้นหยา',shed=k=='เพิงหมาแหงน',
+ A0=w*d/Math.cos(a)*(hip?1.03:1),hl=(d/2)*Math.sqrt(2+Math.tan(a)**2),n=Math.floor(w/ni('#ts',3))+1,
+ tl=n*(d/Math.cos(a)+d+(shed?1:1.2)*d)*(hip?1.2:1),pl=A0/ni('#ps',.9),
+ y1=$('#tt1').value,y2=$('#tt2').value,s1=[ni('#b1',50),ni('#h1',100),ni('#t1',2.3)],s2=[ni('#b2',45),ni('#h2',75),ni('#t2',1.6)],
+ tk=tl*kgm(y1,...s1),pk=pl*kgm(y2,...s2),CV=cover(),mt=$('#rc').value=='metal'||$('#rc').value=='pu';
+ return{A:A0*1.05,rg:hip?Math.max(0,w-d)+4*hl:w,gt:hip?2*(w+d):shed?w:2*w,tk,pk,CV,
+  sp:k+' ลาด '+Math.round(a*180/Math.PI)+'° · '+CV[0]+(mt?' หนา '+ni('#rcm',.35)+' มม.':'')+' · โครงหลัก '+sx(y1,...s1)+' ห่าง '+ni('#ts',3)+' ม. · แป '+sx(y2,...s2)+' ห่าง '+ni('#ps',.9)+' ม. · เหล็กรวม '+fm(tk+pk)+' กก.'}}
 function calc(nk){
  const R=rooms.filter(r=>r.w>0&&r.l>0),H=+$('#ht').value||3,ar=r=>r.w*r.l,A=sum(R,ar),fl=Math.max(1,...R.map(r=>r.f)),
  fa=Array.from({length:fl},(_,i)=>sum(R.filter(r=>r.f==i+1&&r.t!=2),ar)),oa=Array.from({length:fl},(_,i)=>sum(R.filter(r=>r.f==i+1&&r.t==2),ar)),
  Ai=sum(fa,x=>x),Ao=sum(oa,x=>x),Wr=R.filter(r=>r.t==1),Ab=A*1.12,tot=fa.map((x,i)=>x+oa[i]),fp=Math.max(...tot)*1.12,top=tot[fl-1]*1.12,
  nr=R.filter(r=>r.t!=2).length,flat=$('#rt').value=='ดาดฟ้า',wa=sum(R.filter(r=>r.t!=2),r=>2*(r.w+r.l))*.55*H*.88,pa=wa*2,
- cv=1.12*(.21*Ai+.12*Ao)+.09*fp+(flat?.15*top:0),roofA=top*1.3+Math.max(0,fp-top)*1.15,wt=sum(Wr,r=>2*(r.w+r.l))*2.1*.85*1.08,tl=Ai*1.05;
+ cv=1.12*(.21*Ai+.12*Ao)+.09*fp+(flat?ni('#dk',15)/100*top:0),RF=roof(fp),roofA=RF.A,wt=sum(Wr,r=>2*(r.w+r.l))*2.1*.85*1.08,tl=Ai*1.05;
  // [รายการ, หน่วย, ปริมาณ, รหัสวัสดุ(พยากรณ์ได้), ราคาวัสดุคงที่, ค่าแรง/หน่วย, ปรับตามระดับวัสดุ]
  const G=[
  ['งานโครงสร้างและฐานราก',[['งานขุดดินฐานราก','ลบ.ม.',fp*.8,0,0,180],['คอนกรีตผสมเสร็จ (ฐานราก เสา คาน พื้น)','ลบ.ม.',cv,'conc',0,900],['เหล็กเส้นเสริมคอนกรีต','กก.',cv*100,'rebar',0,8],['ไม้แบบและค้ำยัน','ตร.ม.',cv*6.5,0,180,220],...(fl>1?[['บันไดคอนกรีต พร้อมราวและผิวบันได','ชุด',fl-1,0,22000,9000]]:[])]],
  ['งานก่ออิฐและฉาบปูน',[['ก่ออิฐมวลเบา','ก้อน',wa*12.5*1.03,'aac',0,7],['ปูนซีเมนต์ (ก่อ+ฉาบ)','ถุง',pa*.13+wa*.04,'cem',0,0],['ทรายก่อสร้าง','ลบ.ม.',pa*.025+wa*.01,'sand',0,0],['ค่าแรงฉาบปูนเรียบ','ตร.ม.',pa,0,0,85]]],
- ['งานหลังคา',flat?[['กันซึมดาดฟ้าและทางระบายน้ำ','ตร.ม.',top,0,260,120]]:[['โครงหลังคาเหล็ก','กก.',roofA*11,'steel',0,10],['กระเบื้องหลังคา','ตร.ม.',roofA,'roof',0,120]]],
+ ['งานหลังคา',flat?[['กันซึมดาดฟ้าและทางระบายน้ำ','ตร.ม.',top,0,260,120]]:[['โครงหลังคาเหล็ก (โครงหลัก)','กก.',RF.tk,'steel',0,10],['แปเหล็กหลังคา','กก.',RF.pk,'steel',0,10],['หลังคา: '+RF.CV[0],'ตร.ม.',roofA,RF.CV[3],RF.CV[1],RF.CV[2]],['ครอบสัน/ครีบข้างหลังคา','ม.',RF.rg,0,120,60],['รางน้ำฝนและท่อรับน้ำ','ม.',RF.gt,0,180,60]]],
  ['งานพื้น ผนัง ฝ้าเพดาน',[['กระเบื้องปูพื้น','ตร.ม.',tl,'tile',0,160,1],['กระเบื้องผนังห้องน้ำ','ตร.ม.',wt,'tile',0,190,1],['ปูนกาวและยาแนว','ถุง',(tl+wt)/4.5,0,175,0],['ฝ้ายิปซัม','ตร.ม.',Ai,'gyp',0,130,1]]],
  ['งานประตู หน้าต่าง สุขภัณฑ์',[['ประตูพร้อมวงกบ','ชุด',nr+1,0,2800,450,1],['หน้าต่างอลูมิเนียม','ชุด',Math.ceil(nr*.9),0,3200,500,1],['สุขภัณฑ์ชุดห้องน้ำ','ชุด',Wr.length,0,7500,900,1]]],
  ['งานสี',[['สีทาอาคาร (รองพื้น + 2 เที่ยว)','แกลลอน',(pa+Ai)/17,'paint',0,300,1]]],
  ['งานระบบไฟฟ้าและประปา',[['สายไฟ THW','ม.',Ai*5,'wire',0,5],['จุดไฟฟ้า (โคม ปลั๊ก สวิตช์)','จุด',Math.ceil(Ai/2.2),0,380,450],['ท่อ PVC ประปา-ท่อน้ำทิ้ง','ม.',Ai*.9+Wr.length*18,'pvc',0,25]]]];
+ G.forEach(([g,its])=>its.forEach(it=>{const o=st.ov[it[0]];if(o)it.o=o}));
  if(!nk&&st.kfOn)G.forEach(([g,its],gi)=>its.forEach(it=>it[7]=st.kf[gi]));
- return{G,A,Ab,fl,fp,H,reg:REG[$('#rg').value],sp:SPC[$('#sp').value],F:+$('#ff').value||1}
+ return{G,A,Ab,fl,fp,H,rs:flat?'ดาดฟ้า พื้นหนา '+ni('#dk',15)+' ซม.':RF.sp,reg:REG[$('#rg').value],sp:SPC[$('#sp').value],F:+$('#ff').value||1}
 }
 function update(){
- const{G,A,Ab,reg,sp,F,fl,fp,H}=calc(),mo=st.mo;let M0=0,MM=0,L=0,rows='',gs=[];
- const cost=(it,m)=>{const up=(it[3]?pr(it[3],m):it[4])*(it[6]?sp:1)*reg,kf=it[7]||1;return{up,lb:it[5]*reg,m:it[2]*up*kf,l:it[2]*it[5]*reg*kf}};
- G.forEach(([g,its])=>{let s=0,sm=0,sl=0,h='';its.forEach(it=>{const a=cost(it,0),b=cost(it,mo);M0+=a.m;MM+=b.m;L+=b.l;s+=b.m+b.l;sm+=b.m;sl+=b.l;h+=`<tr><td>${it[0]}</td><td>${it[1]}</td><td>${f1(it[2])}</td><td>${pf(b.up)}</td><td>${pf(b.lb)}</td><td>${fm(b.m+b.l)}</td></tr>`});gs.push([g,s,sm,sl]);rows+=`<tr class="gh"><td colspan="5">${g}${its[0][7]&&its[0][7]!=1?` · ตัวคูณปรับเทียบ ×${its[0][7].toFixed(2)}`:''}</td><td>${fm(s)}</td></tr>`+h});
+ const{G,A,Ab,reg,sp,F,fl,fp,H,rs}=calc(),mo=st.mo;$('#rsp').textContent='สเปกหลังคา: '+rs;let M0=0,MM=0,L=0,rows='',gs=[];
+ const cost=(it,m)=>{const o=it.o||{},up=o.m!=null?o.m:(it[3]?pr(it[3],m):it[4])*(it[6]?sp:1)*reg,lb=o.l!=null?o.l:it[5]*reg,kf=it[7]||1;return{up,lb,m:it[2]*up*kf,l:it[2]*lb*kf}};
+ G.forEach(([g,its])=>{let s=0,sm=0,sl=0,h='';its.forEach(it=>{const a=cost(it,0),b=cost(it,mo);M0+=a.m;MM+=b.m;L+=b.l;s+=b.m+b.l;sm+=b.m;sl+=b.l;h+=`<tr><td>${it[0]}</td><td>${it[1]}</td><td>${f1(it[2])}</td><td><input type="number" min="0" step="any" class="${it.o&&it.o.m!=null?'ov':''}" data-o="${esc(it[0])}" data-w="m" value="${+b.up.toFixed(2)}" aria-label="ราคาวัสดุต่อหน่วย ${esc(it[0])}"></td><td><input type="number" min="0" step="any" class="${it.o&&it.o.l!=null?'ov':''}" data-o="${esc(it[0])}" data-w="l" value="${+b.lb.toFixed(2)}" aria-label="ค่าแรงต่อหน่วย ${esc(it[0])}"></td><td>${fm(b.m+b.l)}</td></tr>`});gs.push([g,s,sm,sl]);rows+=`<tr class="gh"><td colspan="5">${g}${its[0][7]&&its[0][7]!=1?` · ตัวคูณปรับเทียบ ×${its[0][7].toFixed(2)}`:''}</td><td>${fm(s)}</td></tr>`+h});
  const D=MM+L,T=D*F,d=(MM-M0)*F;
  rows+=`<tr class="tt"><td colspan="5">รวมต้นทุนโดยตรง</td><td>${fm(D)}</td></tr><tr><td colspan="5">คูณ Factor F (${F})</td><td><b>${fm(T)}</b></td></tr>`;
  $('#bb').innerHTML=rows;cnt(T);drawB(fl,fp,H);$('#kf').textContent=fl+' ชั้น';sheet(gs,D,T,F,A,Ab,fl,mo);cal();$('#psm').textContent=fm(T/(A||1));$('#km').textContent=fm(MM);$('#kl').textContent=fm(L);$('#ka').textContent=f1(A)+' ตร.ม.';
@@ -336,7 +363,7 @@ $('#mo').addEventListener('input',e=>{st.mo=+e.target.value;update()});
 $('.tabs').addEventListener('click',e=>{const t=e.target.dataset.t;if(!t)return;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('#p-boq').classList.toggle('hid',t!='boq');$('#p-fc').classList.toggle('hid',t!='fc');$('#p-sum').classList.toggle('hid',t!='sum');$('#p-cal').classList.toggle('hid',t!='cal')});
 $('#chips').addEventListener('click',e=>{if(e.target.dataset.k){st.sel=e.target.dataset.k;rfc()}});
 $('#fb').addEventListener('change',e=>{const k=e.target.dataset.p;if(k){st.price[k]=Math.max(0,+e.target.value)||MAT[k][2];update()}});
-$('#cp').onclick=async()=>{const t=[...document.querySelectorAll('#bq tr')].map(r=>[...r.cells].map(c=>c.textContent).join('\t')).join('\n');try{await navigator.clipboard.writeText(t);$('#cpm').textContent=' คัดลอกแล้ว'}catch(x){$('#cpm').textContent=' คัดลอกไม่ได้ในหน้านี้'}};
+$('#cp').onclick=async()=>{const t=[...document.querySelectorAll('#bq tr')].map(r=>[...r.cells].map(c=>c.querySelector('input')?c.querySelector('input').value:c.textContent).join('\t')).join('\n');try{await navigator.clipboard.writeText(t);$('#cpm').textContent=' คัดลอกแล้ว'}catch(x){$('#cpm').textContent=' คัดลอกไม่ได้ในหน้านี้'}};
 const GC=['#3B6BF0','#F08C2E','#14A58A','#8E5BD9','#E5568A','#D9A514','#6B8190'];
 let cd=null,first=true,tv=0,ct=0;
 function cnt(to){const el=$('#tot'),from=tv,id=++ct;tv=to;if(!from||matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent='฿'+fm(to);return}const t0=performance.now(),a=t=>{if(id!==ct)return;const p=Math.min(1,(t-t0)/450);el.textContent='฿'+fm(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(a)};requestAnimationFrame(a)}
@@ -361,7 +388,7 @@ function mk3(yw,pt){
   for(let j=0;j<fl;j++)for(let i=0;i<nw;i++){const t=g*i+g/2,z=j*H+1;if(!wi&&!j&&Math.abs(t-L/2)<1.5)continue;F([E(t-.6,z),E(t+.6,z),E(t+.6,z+1.4),E(t-.6,z+1.4)],n,'wn')}
   if(!wi)F([E(L/2-.55,0),E(L/2+.55,0),E(L/2+.55,2.1),E(L/2-.55,2.1)],n,'dr0')
  });
- if(r<.01)F([[0,0,h],[w,0,h],[w,d,h],[0,d,h]],[0,0,1]);else{F([[0,d,h],[w,d,h],[w,d/2,h+r],[0,d/2,h+r]],[0,r/hh,d/2/hh]);
+ if(r<.01)F([[0,0,h],[w,0,h],[w,d,h],[0,d,h]],[0,0,1]);else if(B3.k=='ปั้นหยา'){const a=d/2;F([[0,d,h],[w,d,h],[w-a,a,h+r],[a,a,h+r]],[0,r/hh,a/hh]);F([[w,0,h],[0,0,h],[a,a,h+r],[w-a,a,h+r]],[0,-r/hh,a/hh]);F([[w,0,h],[w,d,h],[w-a,a,h+r]],[r/hh,0,a/hh]);F([[0,d,h],[0,0,h],[a,a,h+r]],[-r/hh,0,a/hh])}else if(B3.k=='เพิงหมาแหงน'){const hy=Math.hypot(r,d);F([[0,0,h+r],[w,0,h+r],[w,d,h],[0,d,h]],[0,r/hy,d/hy]);F([[w,0,h],[0,0,h],[0,0,h+r],[w,0,h+r]],[0,-1,0]);F([[w,0,h],[w,d,h],[w,0,h+r]],[1,0,0]);F([[0,d,h],[0,0,h],[0,0,h+r]],[-1,0,0])}else{F([[0,d,h],[w,d,h],[w,d/2,h+r],[0,d/2,h+r]],[0,r/hh,d/2/hh]);
  F([[w,0,h],[0,0,h],[0,d/2,h+r],[w,d/2,h+r]],[0,-r/hh,d/2/hh]);
  F([[w,0,h],[w,d,h],[w,d/2,h+r]],[1,0,0]);
  F([[0,d,h],[0,0,h],[0,d/2,h+r]],[-1,0,0])}
@@ -371,7 +398,7 @@ function loop(t){if(!auto||drag||!vis){run=false;return}yaw+=(t-last)*.00035;las
 function go(){if(auto&&!run&&vis){run=true;last=performance.now();requestAnimationFrame(loop)}}
 function drawB(fl,fp,H){
  fp=Math.max(fp,6);const w=Math.sqrt(fp*1.3),d=fp/w;
- Object.assign(B3,{w,d,h:fl*H,r:$('#rt').value=='ดาดฟ้า'?0:Math.max(1.8,Math.min(w,d)*.28),fl,H});
+ const k=$('#rt').value,ag=Math.tan(Math.min(ni('#rsl',25),60)*Math.PI/180);Object.assign(B3,{w,d,h:fl*H,k,r:k=='ดาดฟ้า'?0:Math.max(.6,Math.min(4,d*ag*(k=='เพิงหมาแหงน'?1:.5))),fl,H});
  r3();$('#sv').innerHTML=`<svg class="v3" viewBox="0 0 460 340">${mk3(Y0,.5)}</svg>`;
  $('#bd').textContent='ลากเพื่อหมุน · '+w.toFixed(1)+' × '+d.toFixed(1)+' × '+(fl*H).toFixed(1)+' ม.';go()}
 const bh=$('#bh');
@@ -399,10 +426,13 @@ const PL=['emerald','blueprint','graphite','plum'];
 function setPal(p){document.documentElement.dataset.pal=p;document.querySelectorAll('.pal button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p==p));try{localStorage.setItem('pal',p)}catch(e){}}
 document.querySelector('.pal').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setPal(b.dataset.p)});
 {let p0='emerald';try{p0=localStorage.getItem('pal')||p0}catch(e){}setPal(PL.includes(p0)?p0:'emerald')}
-st.kf=[1,1,1,1,1,1,1];st.kfOn=false;st.refs=[];st.real={};st.src='';
+st.kf=[1,1,1,1,1,1,1];st.kfOn=false;st.refs=[];st.real={};st.src='';st.ov={};
 const SRC={conc:'ค่าเฉลี่ยทั้งประเทศ ส.ค. 69 ไม่รวม VAT (คอนกรีต 240 ksc) · ระบบราคาวัสดุก่อสร้าง กระทรวงพาณิชย์ ผ่าน yotathai.com',rebar:'ราคาเงินสด SD40T 10 มม. ต.ค. 69 ไม่รวม VAT (ร้านค้าส่ง) · steellead.com',steel:'ดัชนีมัธยฐานราคาเหล็กกล่อง ต.ค. 69 · steellead.com',cem:'ราคากลางกรมบัญชีกลาง ปี 69 ปูนปอร์ตแลนด์ 50 กก. ผ่านบทความ kohinter.com'};
-const gt=c=>c.G.map(([g,its])=>sum(its,it=>it[2]*((it[3]?pr(it[3],0):it[4])*(it[6]?c.sp:1)+it[5])*c.reg)),GN=calc(1).G.map(g=>g[0]),TY=['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'];
-$('#rt').addEventListener('input',update);
+const gt=c=>c.G.map(([g,its])=>sum(its,it=>{const o=it.o||{};return it[2]*((o.m!=null?o.m:(it[3]?pr(it[3],0):it[4])*(it[6]?c.sp:1)*c.reg)+(o.l!=null?o.l:it[5]*c.reg))})),GN=calc(1).G.map(g=>g[0]),TY=['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'];
+$('#rt').addEventListener('input',()=>{if($('#rt').value!='ดาดฟ้า')$('#rsl').value=$('#rt').value=='เพิงหมาแหงน'?12:25;update()});
+document.querySelectorAll('.ri').forEach(e=>e.addEventListener('input',update));
+$('#bb').addEventListener('change',e=>{const k=e.target.dataset.o;if(k==null)return;const v=e.target.value.trim(),w=e.target.dataset.w,o=st.ov[k]||(st.ov[k]={});if(v===''||!(+v>=0))delete o[w];else o[w]=+v;if(!Object.keys(o).length)delete st.ov[k];update()});
+$('#ovr').onclick=()=>{st.ov={};update()};
 // ---- backtest ----
 const mp=a=>a.length?sum(a,x=>x)/a.length*100:NaN,pc=x=>isFinite(x)?x.toFixed(1)+'%':'–';
 function bts(y){const m={naive:[[],[],[]],holt:[[],[],[]],drift:[[],[],[]]},HZ=[1,3,6];
