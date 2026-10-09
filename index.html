@@ -1,201 +1,339 @@
 <!doctype html>
 <html lang="th" data-pal="emerald"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI Auto-BOQ & Material Price Predictor</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<title>AI Auto-BOQ & Material Price Predictor · ถอดแบบและประเมินราคาก่อสร้างอัตโนมัติ</title>
+<meta name="description" content="ระบบถอดแบบและประเมินราคาก่อสร้างบ้านพักอาศัยอัตโนมัติ กรอกผังห้องแล้วได้ใบ BOQ พร้อมพยากรณ์ราคาวัสดุและใบสรุปส่งลูกค้า พัฒนาโดย Karan Buathong">
+<meta name="keywords" content="BOQ, ถอดแบบ, ประเมินราคาก่อสร้าง, ราคาวัสดุก่อสร้าง, พยากรณ์ราคาวัสดุ, Factor F, ประเมินราคาบ้าน">
+<meta name="theme-color" content="#07382E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Auto-BOQ & Material Price Predictor">
+<meta property="og:description" content="กรอกผังห้อง ได้ใบ BOQ พร้อมพยากรณ์ราคาวัสดุก่อสร้างและใบสรุปส่งลูกค้า">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307382E'/%3E%3Cpath d='M6 16 16 8l10 8M8.5 14.5V25h15V14.5M13 25v-6h6v6' fill='none' stroke='%23E3B23C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('theme');if(t!='light'&&t!='dark')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';d.dataset.theme=t}catch(e){d.dataset.theme='light'}})()</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#ECEEEC;--cd:#fff;--ink:#1B2A33;--mu:#5B6B73;--ln:#C9D1D3;--ac:#1F4FD8;--acs:#E3EAFB;--hi:#F5C518;--up:#B3391B;--dn:#157A4B;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11181C;--cd:#182229;--ink:#E6ECEF;--mu:#98A8B0;--ln:#2B3A42;--ac:#6C93FF;--acs:#1F2E57;--up:#FF8A6B;--dn:#55D08F}}
-:root[data-theme="dark"]{--bg:#11181C;--cd:#182229;--ink:#E6ECEF;--mu:#98A8B0;--ln:#2B3A42;--ac:#6C93FF;--acs:#1F2E57;--up:#FF8A6B;--dn:#55D08F}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:inherit}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'Noto Sans Thai',Sarabun,system-ui,sans-serif;font-variant-numeric:tabular-nums}
-.tb{display:grid;grid-template-columns:1fr auto auto;border:2px solid var(--ink);margin:12px;background:var(--cd)}
-.tb>div{padding:10px 14px;border-left:1px solid var(--ink)}.tb>div:first-child{border-left:0}
-.tb h1{margin:0;font-size:1.25rem;letter-spacing:-.01em}.tb p{margin:2px 0 0;color:var(--mu);font-size:.85rem}
-.tb span,.kp span{display:block;color:var(--mu);font-size:.78rem}
-.app{display:grid;grid-template-columns:380px 1fr;gap:12px;margin:0 12px 24px;align-items:start}
-.in{position:sticky;top:12px}
-@media(max-width:900px){.app{grid-template-columns:1fr}.in{position:static}.tb{grid-template-columns:1fr 1fr}.tb>div:first-child{grid-column:1/-1;border-bottom:1px solid var(--ink)}.tb>div:nth-child(2){border-left:0}}
-.pn{background:var(--cd);border:1px solid var(--ln);border-radius:6px;padding:14px;margin-bottom:12px}
-.pn h2{margin:0 0 6px;font-size:1rem}
-label{display:block;font-size:.8rem;color:var(--mu);margin:8px 0 3px}
-input,select{width:100%;min-width:0;font:inherit;font-size:.88rem;padding:6px 7px;border:1px solid var(--ln);border-radius:4px;background:var(--bg);color:var(--ink)}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+/* ============ tokens ============ */
+:root{--bg:#EDF0EE;--cd:#fff;--cd2:#F5F7F6;--ink:#14232B;--mu:#52666F;--ln:#D2DADC;--up:#B3391B;--dn:#157A4B;--gl:rgba(20,35,43,.045);--onac:#fff;--sh:0 1px 2px rgba(11,35,40,.05),0 18px 36px -26px rgba(11,35,40,.5);--r:14px;color-scheme:light}
+:root[data-theme="dark"]{--bg:#0E1519;--cd:#162026;--cd2:#1B2830;--ink:#E7EEF1;--mu:#9AAAB2;--ln:#2A3A43;--up:#FF8A6B;--dn:#55D08F;--gl:rgba(255,255,255,.035);--onac:#0B1218;--sh:0 1px 2px rgba(0,0,0,.4),0 18px 36px -26px rgba(0,0,0,.85);color-scheme:dark}
+:root[data-pal="emerald"]{--acl:#0E7C61;--ac:#0E7C61;--acs:#DDF3EA;--hi:#E3B23C;--h1:#07382E;--h2:#04251F;--hg:#12987A;--hl:#86E8C5;--ht:#BFEFDD;--hm:#7FCBAA}
+:root[data-theme="dark"][data-pal="emerald"]{--ac:#4FD1A5;--acs:#12372E}
+:root[data-pal="blueprint"]{--acl:#1F4FD8;--ac:#1F4FD8;--acs:#E3EAFB;--hi:#F5C518;--h1:#0B2358;--h2:#081A43;--hg:#2A62E0;--hl:#8FD3FF;--ht:#BBD3FF;--hm:#8FB4F5}
+:root[data-theme="dark"][data-pal="blueprint"]{--ac:#6C93FF;--acs:#1F2E57}
+:root[data-pal="graphite"]{--acl:#C2500A;--ac:#C2500A;--acs:#FBE6D8;--hi:#FF8A1F;--h1:#232A30;--h2:#14181C;--hg:#4A5963;--hl:#FFB27A;--ht:#E3E7EA;--hm:#A5AFB6}
+:root[data-theme="dark"][data-pal="graphite"]{--ac:#FF9A55;--acs:#3A2416}
+:root[data-pal="plum"]{--acl:#7A33C4;--ac:#7A33C4;--acs:#EFE2FB;--hi:#FF7AA8;--h1:#2B1245;--h2:#1A0B2D;--hg:#8E45D6;--hl:#E1B8FF;--ht:#EBD9FF;--hm:#B896E0}
+:root[data-theme="dark"][data-pal="plum"]{--ac:#C79BFF;--acs:#2E1B47}
+
+/* ============ base ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(76px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 'Noto Sans Thai',Sarabun,system-ui,-apple-system,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;background-image:linear-gradient(var(--gl) 1px,transparent 1px),linear-gradient(90deg,var(--gl) 1px,transparent 1px);background-size:32px 32px}
+h1,h2,h3,p,dl,dd,ol,ul{margin:0}
+a{color:var(--ac)}
 button{font:inherit;cursor:pointer}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rm{display:grid;grid-template-columns:1.5fr .7fr .7fr .5fr 1.1fr 26px;gap:4px;margin-bottom:4px}
-.rm input,.rm select{padding:5px 4px;font-size:.8rem}.rm button{border:0;background:none;color:var(--up);font-size:1.1rem}
-.rh{font-size:.72rem;color:var(--mu)}
-.add{width:100%;margin-top:6px;padding:7px;border:1px dashed var(--ac);background:none;color:var(--ac);border-radius:4px}
-.kp{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;border:2px solid var(--ink);background:var(--cd);margin-bottom:12px}
-.kp>div{padding:12px 14px;border-left:1px solid var(--ln)}
-.kp b{font-size:1.15rem}
-.kp .big{border-left:0;background:var(--hi);color:#1B2A33}.kp .big span,.kp .big small{color:#4a4010}
-.kp .big b{font-size:2.2rem;line-height:1.15;display:block}
-.kp .sl{grid-column:1/-1;border-left:0;border-top:1px solid var(--ln)}
-.kp input[type=range]{padding:0;accent-color:var(--ac)}
-@media(max-width:600px){.kp{grid-template-columns:1fr 1fr}.kp .big{grid-column:1/-1}.kp .big b{font-size:1.8rem}}
-.tabs{display:flex;gap:4px}
-.tabs button{padding:8px 14px;border:1px solid var(--ln);border-bottom:0;background:var(--cd);color:var(--ink);border-radius:6px 6px 0 0}
-.tabs .on{background:var(--ac);color:#fff;border-color:var(--ac)}
-.pn.t{border-top-left-radius:0}
-.hid{display:none}
-.sc{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th,td{padding:6px 8px;border-bottom:1px solid var(--ln);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left;white-space:normal}
-th{color:var(--mu);font-weight:500}
-.gh td{background:var(--acs);font-weight:700}
-.tt td{font-weight:700;border-top:2px solid var(--ink)}
-td input{width:90px;text-align:right}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))}
+.skip{position:absolute;left:-999px;top:8px;z-index:100;background:#fff;color:#000;padding:8px 14px;border-radius:8px}.skip:focus{left:8px}
 .up{color:var(--up)}.dn{color:var(--dn)}
-.bars div{display:grid;grid-template-columns:150px 1fr 90px;gap:8px;align-items:center;font-size:.82rem;margin:4px 0}
-.bars i{display:block;height:8px;background:var(--ac);border-radius:2px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.chip{padding:4px 10px;border:1px solid var(--ln);border-radius:99px;background:none;color:var(--ink);font-size:.8rem}
-.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
-svg{width:100%;height:auto;display:block}
-svg text{fill:var(--mu);font-size:11px}
-.ax{stroke:var(--ln)}.lh{fill:none;stroke:var(--ink);stroke-width:2}.lf{fill:none;stroke:var(--ac);stroke-width:2.2;stroke-dasharray:6 4}.bd{fill:var(--ac);opacity:.16}
-.nt{font-size:.78rem;color:var(--mu);margin:8px 0 0}
-.cp{float:right;border:1px solid var(--ln);background:none;color:var(--ink);border-radius:4px;padding:3px 10px;font-size:.8rem}
+.nt{font-size:.8rem;color:var(--mu);margin:8px 0 0}.nt:empty{display:none}
+.hint{font-size:.76rem;color:var(--mu);margin-top:6px}
+.hid{display:none}
 
-:root{--gl:rgba(27,42,51,.05)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--gl:rgba(255,255,255,.04)}}
-:root[data-theme="dark"]{--gl:rgba(255,255,255,.04)}
-html{scroll-behavior:smooth}
-body{background-image:linear-gradient(var(--gl) 1px,transparent 1px),linear-gradient(90deg,var(--gl) 1px,transparent 1px);background-size:32px 32px}
-.hero{position:relative;overflow:hidden;color:#EAF2FF;padding:44px 20px 0;background:radial-gradient(800px 420px at 78% 10%,#2A62E0 0,transparent 62%),linear-gradient(#0B2358,#081A43)}
-.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(143,211,255,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(143,211,255,.13) 1px,transparent 1px),linear-gradient(rgba(143,211,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(143,211,255,.06) 1px,transparent 1px);background-size:120px 120px,120px 120px,24px 24px,24px 24px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 78%);mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 78%)}
-.hero>*{position:relative}
-.hw{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;max-width:1240px;margin:0 auto}
-.hero h1{margin:0 0 14px;font-size:clamp(2.2rem,5.4vw,3.9rem);line-height:1.08;letter-spacing:-.025em}
-.hero h1 small{display:block;margin-top:8px;font-size:.5em;font-weight:500;letter-spacing:-.01em;color:#BBD3FF}
-.sub{color:#BBD3FF;max-width:44ch;margin:0}
-.cta{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:8px;background:#F5C518;color:#1B2A33;font-weight:700;text-decoration:none;transition:transform .15s,box-shadow .15s}
-.cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px -8px #F5C518}
-.cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.tbk{display:grid;grid-template-columns:repeat(4,1fr);max-width:1240px;margin:30px auto 0;border:1px solid rgba(143,211,255,.45);border-bottom:0;background:rgba(8,26,67,.78)}
-.tbk div{padding:10px 16px;border-left:1px solid rgba(143,211,255,.3)}.tbk div:first-child{border-left:0}
-.tbk dt{font-size:.74rem;color:#8FB4F5}.tbk dd{margin:0;font-weight:700}
-.hz{height:12px;background:repeating-linear-gradient(-45deg,#F5C518 0 14px,#1B2A33 14px 28px)}
-.bv svg{width:100%;height:auto;max-height:400px;display:block}
-.bv .dr{fill:none;stroke:#8FD3FF;stroke-width:1.4;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
-.bv .wn{stroke:#F5C518}.bv .st{stroke:#5E86D6;stroke-dasharray:4 4}
-.bv .dm{fill:none;stroke:#F5C518;stroke-width:1}.bv .dt{fill:#F5C518;font-size:12px;font-weight:700}
-.an .dr:not(.st){animation:dr 1.6s ease-out both;animation-delay:calc(var(--i)*45ms)}
-.an .fc{animation:fi .9s 1.5s both}
-@keyframes dr{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-@keyframes fi{from{opacity:0}to{opacity:1}}
-@media(max-width:900px){.hw{grid-template-columns:1fr}.tbk{grid-template-columns:1fr 1fr}.tbk div:nth-child(3){border-left:0}.in{position:static;max-height:none}}
-.app{max-width:1240px;margin:22px auto 24px;padding:0 12px}
-.in{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
-@media(max-width:900px){.in{position:static;max-height:none}}
-.pn{border-radius:12px;box-shadow:0 14px 30px -22px rgba(11,35,88,.55)}
-.pn h2{display:flex;align-items:center;gap:8px;font-size:1.05rem}
-.pn h2::before{content:"";width:4px;height:1em;background:var(--ac);border-radius:2px}
-.kp{border:0;border-radius:14px;overflow:hidden;box-shadow:0 22px 44px -26px rgba(11,35,88,.7)}
-.kp .big{background:linear-gradient(135deg,#F9D54D,#F5C518 55%,#E6A90A)}
-.kp b{font-size:1.35rem}.kp .big b{font-size:clamp(1.9rem,4vw,2.6rem)}
-.tabs{display:inline-flex;background:var(--cd);border:1px solid var(--ln);border-radius:99px;padding:4px;gap:2px;margin-bottom:12px}
-.tabs button{border:0;border-radius:99px;padding:7px 20px;background:none;color:var(--ink)}
-.tabs .on{background:var(--ac);color:#fff;box-shadow:0 6px 14px -6px var(--ac)}
-.pn.t{border-top-left-radius:12px}
-.stk{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:2px;margin:8px 0 12px}
-.stk b{display:block;min-width:4px;transition:flex .5s}
-.bars div{grid-template-columns:200px 1fr 140px}.bars i{height:10px;border-radius:99px;transition:width .5s}
-@media(max-width:600px){.bars div{grid-template-columns:100px 1fr 90px}}
-tbody tr:hover td{background:color-mix(in srgb,var(--ac) 7%,transparent)}
-.gh:hover td{background:var(--acs)!important}
-.pl{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;background:color-mix(in srgb,var(--mu) 16%,transparent)}
-.pl.pu{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}
-.pl.pd{background:color-mix(in srgb,var(--dn) 16%,transparent);color:var(--dn)}
-.fs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.fs div{background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
-.fs span{display:block;font-size:.76rem;color:var(--mu)}.fs b{font-size:1.25rem}.fs small{font-size:.8rem}
-@media(max-width:600px){.fs{grid-template-columns:1fr 1fr}}
-.chip:hover{border-color:var(--ac)}
-.gl{fill:var(--ac);opacity:.22}
-.ft{text-align:center;color:var(--mu);font-size:.78rem;padding:0 16px 28px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* ============ forms ============ */
+label{display:block;font-size:.8rem;font-weight:500;color:var(--mu);margin:10px 0 4px}
+input,select,textarea{width:100%;min-width:0;font:inherit;font-size:.9rem;padding:8px 10px;border:1px solid var(--ln);border-radius:9px;background:var(--cd2);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input:hover,select:hover,textarea:hover{border-color:color-mix(in srgb,var(--ac) 45%,var(--ln))}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
+input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--ac)}
+input[type=range]{padding:0;accent-color:var(--ac)}
+input[type=file]{padding:7px;font-size:.8rem}
+textarea{resize:vertical}
+input.ov{border-color:var(--hi);background:color-mix(in srgb,var(--hi) 22%,var(--cd2))}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gh3{font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--ac);margin:16px 0 0;padding-top:12px;border-top:1px dashed var(--ln)}
+.gh3:first-child{margin-top:4px;padding-top:0;border-top:0}
 
-:root{color-scheme:light dark;--onac:light-dark(#fff,#0B1218)}
-:root[data-theme="light"]{color-scheme:light}
-:root[data-theme="dark"]{color-scheme:dark}
-:root[data-pal="emerald"]{--ac:light-dark(#0E7C61,#4FD1A5);--acs:light-dark(#DDF3EA,#12372E);--hi:#E3B23C;--h1:#07382E;--h2:#04251F;--hg:#12987A;--hl:#86E8C5;--ht:#BFEFDD;--hm:#7FCBAA}
-:root[data-pal="blueprint"]{--ac:light-dark(#1F4FD8,#6C93FF);--acs:light-dark(#E3EAFB,#1F2E57);--hi:#F5C518;--h1:#0B2358;--h2:#081A43;--hg:#2A62E0;--hl:#8FD3FF;--ht:#BBD3FF;--hm:#8FB4F5}
-:root[data-pal="graphite"]{--ac:light-dark(#C2500A,#FF9A55);--acs:light-dark(#FBE6D8,#3A2416);--hi:#FF8A1F;--h1:#232A30;--h2:#14181C;--hg:#4A5963;--hl:#FFB27A;--ht:#E3E7EA;--hm:#A5AFB6}
-:root[data-pal="plum"]{--ac:light-dark(#7A33C4,#C79BFF);--acs:light-dark(#EFE2FB,#2E1B47);--hi:#FF7AA8;--h1:#2B1245;--h2:#1A0B2D;--hg:#8E45D6;--hl:#E1B8FF;--ht:#EBD9FF;--hm:#B896E0}
-.hero{color:var(--ht);background:radial-gradient(800px 420px at 78% 10%,var(--hg) 0,transparent 62%),linear-gradient(var(--h1),var(--h2))}
-.hero::before{background-image:linear-gradient(color-mix(in srgb,var(--hl) 13%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--hl) 13%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--hl) 6%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--hl) 6%,transparent) 1px,transparent 1px)}
-.hero h1{color:#fff}.hero h1 small,.sub{color:var(--ht)}
-.cta{background:var(--hi)}.cta:hover{box-shadow:0 10px 24px -8px var(--hi)}
-.cta.g{background:none;color:var(--ht);border:1px solid color-mix(in srgb,var(--hl) 55%,transparent);margin-left:10px}
-.by{margin:14px 0 0;font-size:.88rem;color:var(--hm)}.by a{color:var(--hi);text-decoration:none;font-weight:700}
-.tbk{border-color:color-mix(in srgb,var(--hl) 45%,transparent);background:color-mix(in srgb,var(--h2) 80%,transparent)}
-.tbk div{border-left-color:color-mix(in srgb,var(--hl) 30%,transparent)}.tbk dt{color:var(--hm)}
-.hz{background:repeating-linear-gradient(-45deg,var(--hi) 0 14px,#1B2A33 14px 28px)}
-.kp .big{background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 78%,#fff),var(--hi) 55%,color-mix(in srgb,var(--hi) 82%,#000))}
-.kp .big span,.kp .big small{color:rgba(27,42,51,.8)}
-.tabs .on,.chip.on{color:var(--onac)}
-.pal{position:absolute;top:12px;right:16px;display:flex;gap:8px;align-items:center;z-index:2;font-size:.78rem;color:var(--hm)}
-.pal button{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%);padding:0}
+/* ============ buttons / chips ============ */
+.pb,.cp,.chip,.add{transition:transform .12s,box-shadow .15s,background .15s,border-color .15s}
+.pb{display:inline-flex;align-items:center;justify-content:center;padding:10px 22px;margin:8px 8px 8px 0;border:0;border-radius:10px;background:var(--ac);color:var(--onac);font-weight:700;box-shadow:0 10px 20px -12px var(--ac)}
+.pb:hover{transform:translateY(-1px)}.pb:active{transform:none}
+.cp{padding:7px 14px;border:1px solid var(--ln);background:var(--cd);color:var(--ink);border-radius:9px;font-size:.82rem;font-weight:500}
+.cp:hover{border-color:var(--ac);color:var(--ac)}
+.chip{padding:5px 12px;border:1px solid var(--ln);border-radius:99px;background:var(--cd);color:var(--ink);font-size:.8rem}
+.chip:hover{border-color:var(--ac)}.chip.on{background:var(--ac);border-color:var(--ac);color:var(--onac)}
+.add{width:100%;padding:11px;border:1.5px dashed color-mix(in srgb,var(--ac) 60%,transparent);background:none;color:var(--ac);border-radius:12px;font-weight:600}
+.add:hover:not(:disabled){background:var(--acs)}.add:disabled{opacity:.45;cursor:not-allowed}
+.bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 6px}.bar h2{margin:0!important}.bar .sp{flex:1}
+
+/* ============ top navigation ============ */
+.nav{position:sticky;top:0;z-index:60;padding-top:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--h2) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid color-mix(in srgb,var(--hl) 20%,transparent)}
+.ni{display:flex;align-items:center;gap:16px;min-height:60px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;line-height:1.25}
+.brand i{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;color:var(--hi);background:linear-gradient(135deg,var(--hg),var(--h1));border:1px solid color-mix(in srgb,var(--hl) 45%,transparent)}
+.brand i svg{width:20px;height:20px}
+.brand b{display:block;font-size:1rem;font-weight:800}.brand small{display:block;font-size:.7rem;color:var(--hm);font-weight:500}
+.nl{display:flex;gap:2px;margin-left:auto}
+.nl a{color:var(--ht);text-decoration:none;font-size:.88rem;padding:7px 12px;border-radius:99px}
+.nl a:hover{background:color-mix(in srgb,var(--hl) 14%,transparent);color:#fff}
+.ctl{display:flex;align-items:center;gap:12px}
+.pal{display:flex;gap:8px;align-items:center;font-size:.76rem;color:var(--hm)}
+.pal button{width:24px;height:24px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%)}
 .pal button[aria-pressed="true"]{outline:2px solid #fff;outline-offset:2px}
-.pal button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pal button:focus-visible,.thb:focus-visible,.nav a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.thb{display:grid;place-items:center;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid color-mix(in srgb,var(--hl) 40%,transparent);background:none;color:var(--ht)}
+.thb:hover{background:color-mix(in srgb,var(--hl) 14%,transparent)}
+.thb svg{width:18px;height:18px}.thb .si{display:none}
+:root[data-theme="dark"] .thb .si{display:block}:root[data-theme="dark"] .thb .mi{display:none}
+
+/* ============ hero ============ */
+.hero{position:relative;overflow:hidden;color:var(--ht);padding:clamp(36px,6vw,76px) 0 0;background:radial-gradient(900px 480px at 82% 0,var(--hg) 0,transparent 62%),radial-gradient(640px 420px at 0 100%,color-mix(in srgb,var(--hg) 38%,transparent) 0,transparent 70%),linear-gradient(var(--h1),var(--h2))}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(color-mix(in srgb,var(--hl) 13%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--hl) 13%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--hl) 6%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--hl) 6%,transparent) 1px,transparent 1px);background-size:120px 120px,120px 120px,24px 24px,24px 24px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 78%);mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 78%)}
+.hero>.wrap{position:relative}
+.hw{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+.ey{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;letter-spacing:.03em;padding:5px 14px;border-radius:99px;color:var(--hl);border:1px solid color-mix(in srgb,var(--hl) 40%,transparent);background:color-mix(in srgb,var(--hl) 8%,transparent)}
+.hero h1{margin:16px 0 14px;font-size:clamp(2.3rem,5.6vw,4rem);line-height:1.18;letter-spacing:-.02em;font-weight:800;color:#fff}
+.hero h1 small{display:block;margin-top:6px;font-size:.44em;font-weight:500;letter-spacing:0;color:var(--ht)}
+.sub{color:var(--ht);max-width:52ch;font-size:1.02rem}
+.cta-r{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.cta{display:inline-flex;align-items:center;padding:13px 26px;border-radius:12px;background:var(--hi);color:#1B2A33;font-weight:700;text-decoration:none;transition:transform .15s,box-shadow .15s,background .15s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 28px -12px var(--hi)}
+.cta.g{background:none;color:var(--ht);border:1px solid color-mix(in srgb,var(--hl) 50%,transparent)}
+.cta.g:hover{box-shadow:none;background:color-mix(in srgb,var(--hl) 12%,transparent)}
+.cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.tr{list-style:none;padding:0;margin-top:22px;display:grid;gap:6px;font-size:.88rem}
+.tr li{display:flex;gap:8px;align-items:flex-start}.tr li::before{content:"✓";color:var(--hi);font-weight:800}
+.by{margin-top:16px;font-size:.86rem;color:var(--hm)}.by a{color:var(--hi);font-weight:700;text-decoration:none}
+.hc>*{animation:up .7s both}.hc>:nth-child(2){animation-delay:.08s}.hc>:nth-child(3){animation-delay:.16s}.hc>:nth-child(4){animation-delay:.24s}.hc>:nth-child(5){animation-delay:.32s}.hc>:nth-child(6){animation-delay:.4s}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.bf{position:relative;padding:14px 14px 12px;border-radius:20px;border:1px solid color-mix(in srgb,var(--hl) 30%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--h2) 72%,transparent),color-mix(in srgb,var(--h1) 40%,transparent));box-shadow:0 34px 60px -32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.07)}
+.bf::before,.bf::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--hi);pointer-events:none}
+.bf::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:20px}
+.bf::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:20px}
+.bfh{display:flex;justify-content:space-between;gap:8px;font-size:.72rem;letter-spacing:.05em;color:var(--hm);margin-bottom:4px}
 .bv{--fc:var(--hl);--lc:var(--hl);--wc:var(--hi);cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
-.bv.gb{cursor:grabbing}.bv:focus-visible{outline:2px solid var(--hi);outline-offset:4px}
+.bv.gb{cursor:grabbing}.bv:focus-visible{outline:2px solid var(--hi);outline-offset:4px;border-radius:8px}
+.bv svg,#ch svg,#sv svg{width:100%;height:auto;display:block}.bv svg{max-height:400px}
+.bc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:.78rem;color:var(--hm)}
+.bc button{border:1px solid color-mix(in srgb,var(--hl) 50%,transparent);background:none;color:var(--ht);border-radius:99px;padding:5px 14px;font-size:.78rem}
+.bc button:hover{background:color-mix(in srgb,var(--hl) 14%,transparent)}
 .v3 .f,.v3 .wn,.v3 .dr0,.v3 .gr{stroke:var(--lc);stroke-width:1.2;stroke-linejoin:round}
 .v3 .f{fill:color-mix(in srgb,var(--fc) calc(var(--k)*1%),transparent)}
 .v3 .wn{fill:color-mix(in srgb,var(--wc) calc(var(--k)*1%),transparent);stroke:var(--wc)}
 .v3 .dr0{fill:color-mix(in srgb,var(--wc) 65%,transparent);stroke:var(--wc)}
 .v3 .gr{fill:color-mix(in srgb,var(--fc) calc(var(--k)*1%),transparent);stroke-dasharray:4 4;opacity:.8}
 .v3 .fl{stroke:var(--lc);stroke-width:1;opacity:.7}
-.bc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:.8rem;color:var(--hm)}
-.bc button{border:1px solid color-mix(in srgb,var(--hl) 50%,transparent);background:none;color:var(--ht);border-radius:99px;padding:4px 12px;font-size:.8rem}
-.sheet{--cd:#fff;--bg:#fff;--ink:#1B2A33;--mu:#5B6B73;--ln:#C9D1D3;--fc:var(--ac);--lc:#1B2A33;--wc:var(--hi);color-scheme:light;background:#fff;color:var(--ink);border:1px solid var(--ln);border-radius:6px;padding:28px 32px;max-width:820px;margin:0 auto;box-shadow:0 20px 40px -26px rgba(0,0,0,.5)}
-.sheet h3{margin:0;font-size:1.45rem}.sheet h4{margin:18px 0 6px;font-size:1rem;border-bottom:1px solid var(--ln);padding-bottom:4px}
-.sh{display:flex;justify-content:space-between;gap:16px;border-bottom:3px solid var(--ac);padding-bottom:12px;margin-bottom:12px}
-.sh .r{text-align:right;font-size:.85rem;color:var(--mu)}.mu{color:var(--mu);font-size:.9rem}
-.si{display:grid;grid-template-columns:1fr 1fr;gap:3px 24px;font-size:.88rem}.si span{color:var(--mu)}
-.sv2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;margin-top:12px}
-.sheet .gt td{background:var(--hi);color:#1B2A33;font-size:1.05rem}
-.sheet .cn{font-size:.82rem;color:var(--mu);margin:4px 0;padding-left:20px}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:36px;text-align:center;font-size:.85rem;color:var(--mu)}.sg div{border-top:1px solid var(--ink);padding-top:4px}
-.sf{margin-top:20px;padding-top:10px;border-top:3px solid var(--ac);font-size:.82rem;color:var(--mu);text-align:center}
-.pb{display:inline-block;width:auto;padding:9px 22px;margin:10px 0 14px;background:var(--ac);color:var(--onac);border:0;border-radius:8px;font-weight:700}
-@media(max-width:700px){.sheet{padding:18px}.sv2,.si{grid-template-columns:1fr}}
-.cw{max-width:1240px;margin:0 auto;padding:0 12px 24px}
-.ct{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px;border-radius:14px;color:var(--ht);background:linear-gradient(135deg,var(--h1),var(--h2))}
-.ct h2{margin:0 0 4px;font-size:1.2rem;color:#fff}.ct p{margin:2px 0}
-.tel{display:block;font-size:1.7rem;font-weight:700;color:var(--hi);text-decoration:none;letter-spacing:.02em}
-.ct button{margin-top:6px;border:1px solid color-mix(in srgb,var(--hl) 55%,transparent);background:none;color:var(--ht);border-radius:99px;padding:5px 14px}
-@media print{
- html,body{background:#fff!important}body{background-image:none}
- .hero,.hz,.in,.kp,.tabs,.ft,.cw,.noprint,#p-boq,#p-fc{display:none!important}
- .app{display:block;margin:0;padding:0;max-width:none}
- #p-sum{display:block!important;padding:0;border:0;box-shadow:none;background:none}
- .sheet{border:0;box-shadow:none;padding:0;max-width:none}
- @page{size:A4;margin:14mm}
- *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
+.tbk{display:grid;grid-template-columns:repeat(4,1fr);margin-top:38px;border:1px solid color-mix(in srgb,var(--hl) 35%,transparent);border-bottom:0;border-radius:14px 14px 0 0;background:color-mix(in srgb,var(--h2) 72%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tbk div{padding:14px 18px;border-left:1px solid color-mix(in srgb,var(--hl) 25%,transparent)}.tbk div:first-child{border-left:0}
+.tbk dt{font-size:.74rem;color:var(--hm)}.tbk dd{margin-top:2px;font-weight:700;font-size:1.05rem;color:#fff}
+.hz{height:12px;background:repeating-linear-gradient(-45deg,var(--hi) 0 14px,#1B2A33 14px 28px)}
 
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-input.ov{border-color:var(--hi);background:color-mix(in srgb,var(--hi) 22%,var(--bg))}
-#bb td input{width:84px}
-textarea{width:100%;font:inherit;font-size:.85rem;padding:6px 8px;border:1px solid var(--ln);border-radius:4px;background:var(--bg);color:var(--ink);resize:vertical}
-input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
-@media print{#p-cal{display:none!important}}
+/* ============ sections ============ */
+.sec{padding:clamp(36px,6vw,68px) 0}
+.sec .ey{color:var(--ac);border-color:color-mix(in srgb,var(--ac) 35%,transparent);background:color-mix(in srgb,var(--ac) 8%,transparent)}
+.sh2{margin:12px 0 8px;font-size:clamp(1.45rem,3.2vw,2.15rem);line-height:1.3;letter-spacing:-.01em;font-weight:800}
+.lead{color:var(--mu);max-width:64ch}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;list-style:none;padding:0;margin-top:26px}
+.steps li{position:relative;padding:20px;background:var(--cd);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh)}
+.steps li:not(:last-child)::after{content:"";position:absolute;top:36px;right:-15px;width:16px;height:2px;background:var(--ac);opacity:.5}
+.steps .n{display:grid;place-items:center;width:36px;height:36px;margin-bottom:12px;border-radius:10px;background:var(--ac);color:var(--onac);font-weight:800}
+.steps h3{font-size:1.05rem;margin-bottom:4px}.steps p{font-size:.9rem;color:var(--mu)}
+.ah{padding-bottom:0}
+.js .rv{opacity:0;transform:translateY(14px);transition:opacity .6s,transform .6s}.js .rv.shown{opacity:1;transform:none}
+
+/* ============ tool layout ============ */
+.app{display:grid;grid-template-columns:390px minmax(0,1fr);gap:20px;align-items:start;padding-top:22px;padding-bottom:40px}
+.in{position:sticky;top:78px;max-height:calc(100vh - 94px);overflow:auto;padding:0 4px 4px 0;scrollbar-width:thin}
+#in,#res{scroll-margin-top:76px}
+.pn{background:var(--cd);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.pn.t{padding:20px 22px;border-radius:var(--r)}
+.pn h2{display:flex;align-items:center;gap:10px;margin:22px 0 8px;font-size:1.08rem;font-weight:700;line-height:1.35}
+.pn.t>h2:first-child,.pn.t>.bar:first-child{margin-top:0}
+.pn h2::before{content:"";flex:none;width:4px;height:1.05em;background:var(--ac);border-radius:2px}
+details.pn>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+details.pn>summary::-webkit-details-marker{display:none}
+details.pn>summary::after{content:"";margin:0 4px 0 auto;width:9px;height:9px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(45deg);transition:transform .2s}
+details.pn[open]>summary{border-bottom:1px solid var(--ln)}details.pn[open]>summary::after{transform:rotate(-135deg)}
+details.pn>summary:hover{background:var(--cd2)}
+.no{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:8px;background:var(--acs);color:var(--ac);font-weight:800;font-size:.85rem}
+summary b{display:block;font-size:1rem;line-height:1.35}summary small{display:block;font-size:.76rem;line-height:1.4;color:var(--mu);font-weight:400}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:.66rem;font-weight:700;letter-spacing:.04em;background:color-mix(in srgb,var(--hi) 85%,transparent);color:#1B2A33;vertical-align:middle}
+.pbody{padding:6px 16px 18px}
+.pre{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 12px;font-size:.8rem;color:var(--mu)}
+.rm{display:grid;grid-template-columns:1fr 1fr .75fr 1.5fr;gap:6px 8px;padding:12px;margin-bottom:8px;background:var(--cd2);border:1px solid var(--ln);border-radius:12px}
+.rm>.nm{grid-column:1/4;grid-row:1;font-weight:600}
+.rm>.dl,.rm>.ck{grid-column:4;grid-row:1;justify-self:end;align-self:center}
+.rm>.dl{border:0;background:none;color:var(--up);font-size:.8rem;padding:6px 8px;border-radius:8px}
+.rm>.dl:hover{background:color-mix(in srgb,var(--up) 12%,transparent)}
+.rm .f{margin:0;color:inherit}.rm .f span{display:block;margin-bottom:2px;font-size:.7rem;color:var(--mu)}
+.rm input,.rm select{background:var(--cd);padding:6px 8px}
+.rm .ck{display:flex;align-items:center;gap:6px;margin:0;font-size:.8rem;color:var(--ink)}
+.rn{margin:-2px 0 8px;padding:0 4px;font-size:.76rem;color:var(--up)}
+.dxp{margin:12px 0 0;padding:12px;background:var(--cd2);box-shadow:none}
+.dxp .rm{background:var(--cd)}.dxp .rm input,.dxp .rm select{background:var(--cd2)}
+
+/* ============ KPI ============ */
+.kp{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;margin-bottom:12px;border-radius:18px;overflow:hidden;background:var(--cd);box-shadow:0 26px 50px -30px rgba(11,35,40,.7),0 0 0 1px var(--ln)}
+.kp>div{padding:16px 18px;border-left:1px solid var(--ln)}
+.kp span{display:block;font-size:.78rem;color:var(--mu)}
+.kp b{font-size:1.4rem;font-weight:800;line-height:1.3}
+.kp .big{border-left:0;color:#1B2A33;background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 78%,#fff),var(--hi) 55%,color-mix(in srgb,var(--hi) 82%,#000))}
+.kp .big span,.kp .big small,.kp .big em{color:rgba(27,42,51,.84)}
+.kp .big b{display:block;font-size:clamp(2rem,4.4vw,2.9rem);line-height:1.15;letter-spacing:-.01em}
+.kp .big small{display:block;font-size:.82rem}.kp em{display:block;margin-top:4px;font-size:.8rem;font-style:normal}
+.kp .sl{grid-column:1/-1;border-left:0;border-top:1px solid var(--ln);background:var(--cd2)}
+.kp .sl label{margin:0 0 6px;font-size:.85rem;color:var(--ink)}.kp .sl label b{font-size:inherit}
+.al{margin:0 0 12px;padding:10px 14px;border:1px solid color-mix(in srgb,var(--hi) 60%,transparent);border-left-width:4px;border-radius:10px;background:color-mix(in srgb,var(--hi) 20%,var(--cd));font-size:.86rem}
+.al.info{border-color:var(--ln);border-left-color:var(--ac);background:var(--cd2);color:var(--mu);margin:4px 0 12px}
+.wnc:empty{display:none}
+
+/* ============ tabs ============ */
+.tabs{display:flex;gap:4px;padding:4px;margin-bottom:12px;background:var(--cd);border:1px solid var(--ln);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto;padding:9px 16px;border:0;border-radius:10px;background:none;color:var(--ink);font-weight:600;font-size:.9rem;white-space:nowrap}
+.tabs button:hover{background:var(--acs)}
+.tabs .on{background:var(--ac);color:var(--onac);box-shadow:0 8px 16px -8px var(--ac)}
+.tabs .tg{margin-left:6px;padding:1px 6px;border-radius:99px;font-size:.6rem;font-weight:800;background:color-mix(in srgb,var(--hi) 88%,transparent);color:#1B2A33}
+
+/* ============ tables & charts ============ */
+.sc{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--ln);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:150px}
+th{background:var(--cd2);color:var(--mu);font-weight:600;font-size:.78rem}
+tbody tr:hover td{background:color-mix(in srgb,var(--ac) 6%,transparent)}
+.gh td{background:var(--acs)!important;font-weight:700}.gh td:first-child{box-shadow:inset 3px 0 0 var(--ac)}
+.tt td{font-weight:700;border-top:2px solid var(--ink);background:var(--cd2)}
+.gt td{font-size:1rem;font-weight:800;background:color-mix(in srgb,var(--hi) 34%,var(--cd))!important}
+td input{width:96px;padding:5px 8px;text-align:right}
+#bb td input{width:88px}
+.stk{display:flex;height:16px;margin:8px 0 12px;border-radius:99px;overflow:hidden;gap:2px}
+.stk b{display:block;min-width:4px;transition:flex .5s}
+.bars>div{display:grid;grid-template-columns:210px 1fr 150px;gap:8px;align-items:center;margin:5px 0;font-size:.84rem}
+.bars>div>span:last-child{text-align:right}
+.bars i{display:block;height:10px;border-radius:99px;transition:width .5s}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chw{padding:10px;background:var(--cd2);border:1px solid var(--ln);border-radius:12px}
+.fs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.fs div{padding:10px 12px;background:var(--cd2);border:1px solid var(--ln);border-radius:10px}
+.fs span{display:block;font-size:.76rem;color:var(--mu)}.fs b{font-size:1.2rem}.fs small{font-size:.8rem}
+.pl{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.76rem;background:color-mix(in srgb,var(--mu) 16%,transparent)}
+.pl.pu{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}
+.pl.pd{background:color-mix(in srgb,var(--dn) 16%,transparent);color:var(--dn)}
+svg text{fill:var(--mu);font-size:11px}
+.ax{stroke:var(--ln)}.lh{fill:none;stroke:var(--ink);stroke-width:2}.lf{fill:none;stroke:var(--ac);stroke-width:2.2;stroke-dasharray:6 4}.bd{fill:var(--ac);opacity:.16}.gl{fill:var(--ac);opacity:.22}
+
+/* ============ quotation sheet ============ */
+.sheet{--cd:#fff;--cd2:#F5F7F6;--bg:#fff;--ink:#1B2A33;--mu:#5B6B73;--ln:#C9D1D3;--ac:var(--acl);--acs:#E9EEF0;--fc:var(--acl);--lc:#1B2A33;--wc:var(--hi);color-scheme:light;background:#fff;color:var(--ink);max-width:820px;margin:0 auto;padding:30px 34px;border:1px solid var(--ln);border-radius:6px;box-shadow:0 22px 44px -28px rgba(0,0,0,.55)}
+.sheet h3{font-size:1.5rem;line-height:1.3}.sheet h3 small{display:block;font-size:.7rem;font-weight:600;letter-spacing:.16em;color:var(--mu)}
+.sheet h4{margin:20px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--ln);font-size:1rem}
+.sh{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:14px;margin-bottom:14px;border-bottom:3px solid var(--ac)}
+.sb{display:flex;align-items:center;gap:10px}.sb i{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--ac);color:#fff}.sb svg{width:22px;height:22px}
+.sb b{display:block;line-height:1.2}.sb span{font-size:.74rem;color:var(--mu)}
+.sh .r{text-align:right;font-size:.85rem;color:var(--mu)}
+.mu{color:var(--mu);font-size:.95rem;margin:2px 0 10px}
+.si{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;padding:12px 14px;background:var(--cd2);border:1px solid var(--ln);border-radius:8px;font-size:.88rem}.si span{color:var(--mu)}
+.sv2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;margin-top:14px}
+.sheet th{background:var(--cd2)}
+.sheet .gt td{background:var(--hi)!important;color:#1B2A33;font-size:1.05rem}
+.sheet .cn{margin:4px 0;padding-left:20px;font-size:.82rem;color:var(--mu)}
+.bw{margin-top:10px;padding:8px 12px;border:1px solid var(--ln);border-left:4px solid var(--hi);border-radius:6px;font-size:.88rem}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;text-align:center;font-size:.85rem;color:var(--mu)}.sg div{padding-top:4px;border-top:1px solid var(--ink)}
+.sf{margin-top:20px;padding-top:10px;border-top:3px solid var(--ac);font-size:.8rem;color:var(--mu);text-align:center}
+
+/* ============ trust / faq / contact / footer ============ */
+.dk{color:var(--ht);background:radial-gradient(700px 360px at 90% 0,color-mix(in srgb,var(--hg) 55%,transparent) 0,transparent 65%),linear-gradient(var(--h1),var(--h2))}
+.dk .ey{color:var(--hl);border-color:color-mix(in srgb,var(--hl) 40%,transparent);background:color-mix(in srgb,var(--hl) 8%,transparent)}
+.dk .sh2{color:#fff}.dk .lead{color:var(--ht)}
+.tg3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.tcard{padding:20px;border-radius:var(--r);border:1px solid color-mix(in srgb,var(--hl) 25%,transparent);background:color-mix(in srgb,#fff 5%,transparent)}
+.tcard .n{font-size:.76rem;font-weight:800;letter-spacing:.14em;color:var(--hi)}
+.tcard h3{margin:4px 0 6px;font-size:1.05rem;color:#fff}
+.tcard p,.tcard li{font-size:.88rem;color:var(--ht)}
+.tcard ul{margin-top:8px;padding-left:18px}.tcard li{margin:4px 0;font-size:.8rem;color:var(--hm)}.tcard li b{color:var(--ht);font-weight:600}
+.fq{max-width:860px;margin-top:22px}
+.fq details{background:var(--cd);border:1px solid var(--ln);border-radius:12px;margin-bottom:8px;box-shadow:var(--sh)}
+.fq summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;font-weight:600}
+.fq summary::-webkit-details-marker{display:none}
+.fq summary::after{content:"+";margin-left:auto;font-size:1.3rem;line-height:1;color:var(--ac)}
+.fq details[open] summary::after{content:"−"}
+.fq details p{padding:0 16px 14px;color:var(--mu);font-size:.9rem}
+.ct{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding:26px 30px;border-radius:18px;color:var(--ht);background:radial-gradient(500px 260px at 100% 0,var(--hg) 0,transparent 70%),linear-gradient(135deg,var(--h1),var(--h2))}
+.ct h2{margin-bottom:4px;font-size:1.25rem;color:#fff}.ct p{margin:2px 0}
+.tel{display:block;font-size:1.8rem;font-weight:800;color:var(--hi);text-decoration:none;letter-spacing:.02em}
+.ct button{margin-top:6px;padding:6px 16px;border:1px solid color-mix(in srgb,var(--hl) 55%,transparent);background:none;color:var(--ht);border-radius:99px}
+.ct button:hover{background:color-mix(in srgb,var(--hl) 14%,transparent)}
+.ft{padding:6px 16px 32px;text-align:center;font-size:.78rem;color:var(--mu)}
+.mbar{display:none}
+
+/* ============ responsive ============ */
+@media(max-width:960px){
+ .nl{display:none}.ctl{margin-left:auto}
+ .hw{grid-template-columns:1fr}.tbk{grid-template-columns:1fr 1fr}.tbk div:nth-child(3){border-left:0}.tbk div:nth-child(n+3){border-top:1px solid color-mix(in srgb,var(--hl) 25%,transparent)}
+ .app{grid-template-columns:minmax(0,1fr)}.in{position:static;max-height:none;overflow:visible;padding:0}
+ .steps,.tg3{grid-template-columns:1fr}.steps li::after{display:none}
+ .mbar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;align-items:center;gap:8px;padding:8px max(12px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px));color:var(--ht);background:color-mix(in srgb,var(--h2) 94%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid color-mix(in srgb,var(--hl) 25%,transparent)}
+ .mbar div{margin-right:auto;line-height:1.2}.mbar span{display:block;font-size:.68rem;color:var(--hm)}.mbar b{font-size:1.15rem;color:#fff}
+ .mbar button{padding:10px 14px;border:1px solid color-mix(in srgb,var(--hl) 50%,transparent);border-radius:10px;background:none;color:var(--ht);font-weight:600;font-size:.85rem}
+ .mbar .pr{background:var(--hi);border-color:var(--hi);color:#1B2A33}
+ body{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+ input,select,textarea{font-size:16px}
+}
+@media(max-width:640px){
+ .pal span,.brand small{display:none}.ctl{gap:8px}
+ .pn.t{padding:16px 14px}
+ .kp{grid-template-columns:repeat(3,1fr)}.kp .big{grid-column:1/-1}.kp>div{padding:12px}.kp b{font-size:clamp(.95rem,4.2vw,1.2rem)}.kp .big b{font-size:clamp(1.9rem,9vw,2.4rem)}
+ .fs{grid-template-columns:1fr 1fr}
+ .bars>div{grid-template-columns:1fr auto}.bars i{grid-column:1/-1;order:3}.bars>div>span:first-child{order:1}.bars>div>span:last-child{order:2}
+ #bq td:first-child,#bq th:first-child{position:sticky;left:0;z-index:1;background:var(--cd);box-shadow:1px 0 0 var(--ln);min-width:130px}
+ #bq .gh td:first-child{background:var(--acs)!important}
+ .sheet{padding:18px 16px}.sv2,.si{grid-template-columns:1fr}.sh{flex-direction:column}.sh .r{text-align:left}
+ .ct{padding:22px 18px}.tbk dd{font-size:.95rem}.tbk div{padding:12px 14px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .rv{opacity:1;transform:none}}
+
+/* ============ print: only the quotation sheet ============ */
+@media print{
+ @page{size:A4;margin:14mm}
+ html,body{background:#fff!important;padding:0!important}body{background-image:none}
+ body>*:not(main){display:none!important}
+ .in,.kp,.tabs,.wnc,#p-boq,#p-fc,#p-cal,.noprint{display:none!important}
+ .app{display:block;padding:0;margin:0;max-width:none}
+ #p-sum{display:block!important;padding:0;border:0;box-shadow:none;background:none;margin:0}
+ .sheet{border:0;box-shadow:none;padding:0;max-width:none}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ tr,.sg,.bw{break-inside:avoid}
+}
 </style></head>
 <body>
-<header class="hero"><div class="pal" role="group" aria-label="เลือกโทนสี"><span>โทนสี</span><button data-p="emerald" style="--a:#07382E;--b:#E3B23C" aria-label="เขียวมรกต-ทอง" title="เขียวมรกต-ทอง"></button><button data-p="blueprint" style="--a:#0B2358;--b:#F5C518" aria-label="น้ำเงินแบบแปลน" title="น้ำเงินแบบแปลน"></button><button data-p="graphite" style="--a:#232A30;--b:#FF8A1F" aria-label="เทากราไฟต์-ส้ม" title="เทากราไฟต์-ส้ม"></button><button data-p="plum" style="--a:#2B1245;--b:#FF7AA8" aria-label="ม่วงอเมทิสต์-ชมพู" title="ม่วงอเมทิสต์-ชมพู"></button></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="lg" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10.2V20h13v-9.8M9.5 20v-5.5h5V20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
+<a class="skip" href="#app">ข้ามไปยังเครื่องมือประเมินราคา</a>
+
+<nav class="nav" aria-label="เมนูหลัก"><div class="wrap ni">
+ <a class="brand" href="#top"><i><svg aria-hidden="true"><use href="#lg"/></svg></i><span><b>AI Auto-BOQ</b><small>Material Price Predictor</small></span></a>
+ <div class="nl"><a href="#tool" data-go="tool">เครื่องมือ</a><a href="#how">วิธีใช้</a><a href="#trust">ความน่าเชื่อถือ</a><a href="#faq">คำถามที่พบบ่อย</a><a href="#contact">ติดต่อ</a></div>
+ <div class="ctl">
+  <div class="pal" role="group" aria-label="เลือกโทนสี"><span>โทนสี</span><button data-p="emerald" style="--a:#07382E;--b:#E3B23C" aria-label="เขียวมรกต-ทอง" title="เขียวมรกต-ทอง"></button><button data-p="blueprint" style="--a:#0B2358;--b:#F5C518" aria-label="น้ำเงินแบบแปลน" title="น้ำเงินแบบแปลน"></button><button data-p="graphite" style="--a:#232A30;--b:#FF8A1F" aria-label="เทากราไฟต์-ส้ม" title="เทากราไฟต์-ส้ม"></button><button data-p="plum" style="--a:#2B1245;--b:#FF7AA8" aria-label="ม่วงอเมทิสต์-ชมพู" title="ม่วงอเมทิสต์-ชมพู"></button></div>
+  <button class="thb" id="th" aria-label="สลับโหมดสว่าง / มืด" title="สลับโหมดสว่าง / มืด"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+ </div>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
  <div class="hw">
-  <div>
-   <h1>AI Auto-BOQ<small>& Material Price Predictor</small></h1>
+  <div class="hc">
+   <span class="ey">ระบบประเมินราคางานก่อสร้างบ้านพักอาศัย</span>
+   <h1>AI Auto-BOQ<small>&amp; Material Price Predictor</small></h1>
    <p class="sub">ระบบถอดแบบและประเมินราคาก่อสร้างอัตโนมัติ กรอกผังห้องแล้วได้ใบ BOQ พร้อมพยากรณ์ว่าวัสดุตัวไหนควรสั่งซื้อก่อน</p>
-   <a class="cta" href="#app">เริ่มถอดแบบ</a><a class="cta g" href="#contact">ติดต่อผู้พัฒนา</a><p class="by">พัฒนาโดย Karan Buathong · โทร <a href="tel:0803509524">080 350 9524</a></p>
+   <div class="cta-r"><a class="cta" href="#tool" data-go="tool">เริ่มถอดแบบ</a><a class="cta g" href="#how">ดูวิธีใช้งาน</a></div>
+   <ul class="tr"><li>ไม่ต้องติดตั้ง ไม่ต้องสมัครสมาชิก</li><li>คำนวณในเบราว์เซอร์ ข้อมูลโครงการไม่ถูกส่งออกจากเครื่อง</li><li>ระบุแหล่งที่มาของราคาและช่วงความคลาดเคลื่อนอย่างชัดเจน</li></ul>
+   <p class="by">พัฒนาโดย Karan Buathong · โทร <a href="tel:0803509524">080 350 9524</a></p>
   </div>
-  <div><div class="bv" id="bh" role="img" tabindex="0" aria-label="แบบจำลอง 3 มิติของอาคาร ลากเพื่อหมุน หรือกดลูกศรซ้ายขวา"></div><div class="bc"><button id="ar" aria-pressed="true">หยุดหมุน</button><button id="rs">รีเซ็ตมุมมอง</button><span id="bd"></span></div></div>
+  <div class="bf">
+   <div class="bfh"><span>แบบจำลอง 3 มิติ จากผังห้องที่กรอก</span><span>LIVE PREVIEW</span></div>
+   <div class="bv" id="bh" role="img" tabindex="0" aria-label="แบบจำลอง 3 มิติของอาคาร ลากเพื่อหมุน หรือกดลูกศรซ้ายขวา"></div>
+   <div class="bc"><button id="ar" aria-pressed="true">หยุดหมุน</button><button id="rs">รีเซ็ตมุมมอง</button><span id="bd"></span></div>
+  </div>
  </div>
  <dl class="tbk">
   <div><dt>ประมาณการ ณ</dt><dd id="dt"></dd></div>
@@ -203,66 +341,113 @@ input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
   <div><dt>จำนวนชั้น</dt><dd id="kf"></dd></div>
   <div><dt>ความคลาดเคลื่อนโดยประมาณ</dt><dd>±15–20%</dd></div>
  </dl>
-</header>
+</div></header>
 <div class="hz"></div>
-<main class="app" id="app">
- <aside class="in">
-  <div class="pn"><h2>ข้อมูลโครงการ</h2>
-   <div class="g2"><div><label for="sp">ระดับวัสดุตกแต่ง</label><select id="sp"></select></div><div><label for="rg">พื้นที่ก่อสร้าง</label><select id="rg"></select></div>
-   <div><label for="ht">ความสูงต่อชั้น (ม.)</label><input id="ht" type="number" step=".1" min="2.4" value="3"></div><div><label for="ff">Factor F</label><input id="ff" type="number" step=".01" min="1" value="1.27"></div></div></div>
-  </div>
-  <div class="pn"><h2>หลังคา และขนาดวัสดุ</h2>
-   <label for="rt">รูปทรงหลังคา</label><select id="rt"><option value="จั่ว">หลังคาจั่ว</option><option value="ปั้นหยา">หลังคาปั้นหยา</option><option value="เพิงหมาแหงน">หลังคาเพิงหมาแหงน (ลาดเดียว)</option><option value="ดาดฟ้า">ดาดฟ้า (พื้นคอนกรีต)</option></select>
-   <div class="g2"><div><label for="rsl">ความลาดชัน (องศา)</label><input class="ri" id="rsl" type="number" min="5" max="60" value="25"></div><div><label for="rov">ชายคายื่น (ม.)</label><input class="ri" id="rov" type="number" min="0" step=".1" value=".6"></div>
-   <div><label for="rc">วัสดุมุงหลังคา</label><select class="ri" id="rc"><option value="ctile">กระเบื้องลอนคู่</option><option value="cconc">กระเบื้องคอนกรีต</option><option value="clay">กระเบื้องเซรามิก/ดินเผา</option><option value="metal">เมทัลชีท</option><option value="pu">เมทัลชีทพียูโฟม</option></select></div><div><label for="rcm">ความหนาเมทัลชีท (มม.)</label><input class="ri" id="rcm" type="number" min=".2" step=".01" value=".35"></div></div>
-   <label for="tt1">โครงหลัก (โครงถัก): ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt1"><option value="b">เหล็กกล่อง</option><option value="c">เหล็กตัวซี (C)</option></select><input class="ri" id="ts" type="number" min=".5" step=".1" value="3" aria-label="ระยะห่างโครงหลัก (ม.)"></div>
-   <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b1" type="number" min="10" value="50" aria-label="กว้าง"><input class="ri" id="h1" type="number" min="10" value="100" aria-label="สูง"><input class="ri" id="t1" type="number" min=".5" step=".1" value="2.3" aria-label="ความหนา"></div>
-   <label for="tt2">แปหลังคา: ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt2"><option value="b">เหล็กกล่อง</option><option value="c" selected>เหล็กตัวซี (C)</option></select><input class="ri" id="ps" type="number" min=".3" step=".05" value=".9" aria-label="ระยะห่างแป (ม.)"></div>
-   <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b2" type="number" min="10" value="45" aria-label="กว้าง"><input class="ri" id="h2" type="number" min="10" value="75" aria-label="สูง"><input class="ri" id="t2" type="number" min=".5" step=".1" value="1.6" aria-label="ความหนา"></div>
-   <label for="dk">ความหนาพื้นดาดฟ้า (ซม.) ใช้เมื่อเลือกดาดฟ้า</label><input class="ri" id="dk" type="number" min="8" value="15">
-   <p class="nt">น้ำหนักเหล็กคำนวณจากขนาดและความหนาที่กรอก × ราคา/กก. (แก้ราคาได้ในตาราง BOQ)</p>
-  </div>
-  <div class="pn"><h2>ผังห้อง (ใช้ถอดปริมาณ)</h2>
-   <div class="rm rh"><span>ห้อง</span><span>กว้าง</span><span>ยาว</span><span>ชั้น</span><span>ประเภท</span><span></span></div>
-   <div id="rooms"></div><button class="add" id="add">+ เพิ่มห้อง</button><label for="dx">นำเข้าผังจากไฟล์ DXF (ASCII)</label><input id="dx" type="file" accept=".dxf"><p class="nt">ระบบจะแสดงห้องที่พบให้ตรวจและแก้ไขก่อนนำไปใช้ ไฟล์ DWG ให้บันทึกเป็น DXF ก่อน</p><div id="dxr"></div>
-  </div>
+
+<section class="sec" id="how"><div class="wrap">
+ <span class="ey">เริ่มต้นใน 3 ขั้นตอน</span>
+ <h2 class="sh2">ใช้งานง่าย แม้ไม่เคยถอดแบบมาก่อน</h2>
+ <p class="lead">มือใหม่เริ่มจากแบบตัวอย่างได้ทันที ส่วนมืออาชีพปรับราคา ปรับสเปกหลังคา นำเข้า DXF และปรับเทียบกับ BOQ จริงของตัวเองได้ครบในหน้าเดียว</p>
+ <ol class="steps">
+  <li class="rv"><div class="n">1</div><h3>เลือกแบบตั้งต้นหรือกรอกผังห้อง</h3><p>กดแบบบ้านตัวอย่างเพื่อเริ่มทันที หรือกรอกขนาดห้องเอง และนำเข้าไฟล์ DXF แล้วตรวจสอบก่อนใช้</p></li>
+  <li class="rv"><div class="n">2</div><h3>ตรวจ BOQ และปรับราคา</h3><p>ระบบถอดปริมาณและคำนวณราคาให้ทันที แก้ราคาวัสดุและค่าแรงเองได้ในตาราง ช่องที่แก้จะเป็นสีเหลือง</p></li>
+  <li class="rv"><div class="n">3</div><h3>พยากรณ์ราคา และส่งใบสรุป</h3><p>ดูว่าวัสดุตัวไหนควรสั่งซื้อก่อน แล้วพิมพ์ใบสรุปราคาเป็น PDF ส่งให้ลูกค้าได้ทันที</p></li>
+ </ol>
+</div></section>
+
+<section class="sec ah" id="tool"><div class="wrap">
+ <span class="ey">เครื่องมือประเมินราคา</span>
+ <h2 class="sh2">กรอกข้อมูลทางซ้าย ดูผลทางขวาได้ทันที</h2>
+ <p class="lead">ผลลัพธ์อัปเดตทุกครั้งที่แก้ตัวเลข ไม่ต้องกดปุ่มคำนวณ</p>
+</div></section>
+
+<main class="app wrap" id="app">
+ <aside class="in" id="in" aria-label="ส่วนกรอกข้อมูล">
+  <details class="pn" open><summary><span class="no">1</span><span><b>ข้อมูลโครงการ</b><small>ระดับวัสดุ พื้นที่ก่อสร้าง ความสูง และ Factor F</small></span></summary>
+   <div class="pbody"><div class="g2">
+    <div><label for="sp">ระดับวัสดุตกแต่ง</label><select id="sp"></select></div>
+    <div><label for="rg">พื้นที่ก่อสร้าง</label><select id="rg"></select></div>
+    <div><label for="ht">ความสูงต่อชั้น (ม.)</label><input id="ht" type="number" step=".1" min="2.4" value="3" inputmode="decimal"></div>
+    <div><label for="ff">Factor F</label><input id="ff" type="number" step=".01" min="1" value="1.27" inputmode="decimal"></div>
+   </div>
+   <p class="hint">Factor F คือตัวคูณที่รวมค่าดำเนินการ กำไร และภาษีเข้ากับต้นทุนโดยตรง ค่าเริ่มต้น 1.27 เป็นค่าสมมติสำหรับประเมินเบื้องต้น ปรับตามเงื่อนไขของโครงการได้</p></div>
+  </details>
+
+  <details class="pn" open><summary><span class="no">2</span><span><b>ผังห้อง</b><small>ใช้ถอดปริมาณ — เลือกแบบตัวอย่าง กรอกเอง หรือนำเข้า DXF</small></span></summary>
+   <div class="pbody">
+    <div class="pre" id="pre"><span>เริ่มเร็ว:</span><button class="chip" data-pre="0">บ้านชั้นเดียว</button><button class="chip" data-pre="1">บ้าน 2 ชั้น</button><button class="chip" data-pre="2">ทาวน์โฮม 3 ชั้น</button></div>
+    <div id="rooms"></div><button class="add" id="add">+ เพิ่มห้อง</button><p class="nt" id="ra"></p>
+    <label for="dx">นำเข้าผังจากไฟล์ DXF (ASCII)</label><input id="dx" type="file" accept=".dxf">
+    <p class="nt">ระบบจะแสดงห้องที่พบให้ตรวจและแก้ไขก่อนนำไปใช้ ไฟล์ DWG ให้บันทึกเป็น DXF ก่อน</p><div id="dxr"></div>
+   </div>
+  </details>
+
+  <details class="pn"><summary><span class="no">3</span><span><b>หลังคาและโครงเหล็ก<span class="tag">ขั้นสูง</span></b><small>ไม่ต้องปรับก็ได้ ค่าเริ่มต้นใช้งานได้ทันที</small></span></summary>
+   <div class="pbody">
+    <h3 class="gh3">รูปทรงและวัสดุมุง</h3>
+    <label for="rt">รูปทรงหลังคา</label><select id="rt"><option value="จั่ว">หลังคาจั่ว</option><option value="ปั้นหยา">หลังคาปั้นหยา</option><option value="เพิงหมาแหงน">หลังคาเพิงหมาแหงน (ลาดเดียว)</option><option value="ดาดฟ้า">ดาดฟ้า (พื้นคอนกรีต)</option></select>
+    <div class="g2"><div><label for="rsl">ความลาดชัน (องศา)</label><input class="ri" id="rsl" type="number" min="5" max="60" value="25" inputmode="decimal"></div><div><label for="rov">ชายคายื่น (ม.)</label><input class="ri" id="rov" type="number" min="0" step=".1" value=".6" inputmode="decimal"></div>
+    <div><label for="rc">วัสดุมุงหลังคา</label><select class="ri" id="rc"><option value="ctile">กระเบื้องลอนคู่</option><option value="cconc">กระเบื้องคอนกรีต</option><option value="clay">กระเบื้องเซรามิก/ดินเผา</option><option value="metal">เมทัลชีท</option><option value="pu">เมทัลชีทพียูโฟม</option></select></div><div><label for="rcm">ความหนาเมทัลชีท (มม.)</label><input class="ri" id="rcm" type="number" min=".2" step=".01" value=".35" inputmode="decimal"></div></div>
+    <h3 class="gh3">โครงหลัก (โครงถัก)</h3>
+    <label for="tt1">ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt1"><option value="b">เหล็กกล่อง</option><option value="c">เหล็กตัวซี (C)</option></select><input class="ri" id="ts" type="number" min=".5" step=".1" value="3" aria-label="ระยะห่างโครงหลัก (ม.)" inputmode="decimal"></div>
+    <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b1" type="number" min="10" value="50" aria-label="กว้าง" inputmode="decimal"><input class="ri" id="h1" type="number" min="10" value="100" aria-label="สูง" inputmode="decimal"><input class="ri" id="t1" type="number" min=".5" step=".1" value="2.3" aria-label="ความหนา" inputmode="decimal"></div>
+    <h3 class="gh3">แปหลังคา</h3>
+    <label for="tt2">ชนิดเหล็ก / ระยะห่าง (ม.)</label><div class="g2"><select class="ri" id="tt2"><option value="b">เหล็กกล่อง</option><option value="c" selected>เหล็กตัวซี (C)</option></select><input class="ri" id="ps" type="number" min=".3" step=".05" value=".9" aria-label="ระยะห่างแป (ม.)" inputmode="decimal"></div>
+    <label>กว้าง × สูง × หนา (มม.)</label><div class="g3"><input class="ri" id="b2" type="number" min="10" value="45" aria-label="กว้าง" inputmode="decimal"><input class="ri" id="h2" type="number" min="10" value="75" aria-label="สูง" inputmode="decimal"><input class="ri" id="t2" type="number" min=".5" step=".1" value="1.6" aria-label="ความหนา" inputmode="decimal"></div>
+    <h3 class="gh3">ดาดฟ้า</h3>
+    <label for="dk">ความหนาพื้นดาดฟ้า (ซม.) ใช้เมื่อเลือกดาดฟ้า</label><input class="ri" id="dk" type="number" min="8" value="15" inputmode="decimal">
+    <p class="hint">น้ำหนักเหล็กคำนวณจากขนาดและความหนาที่กรอก × ราคา/กก. (แก้ราคาได้ในตาราง BOQ)</p>
+   </div>
+  </details>
  </aside>
- <section>
+
+ <section id="res" aria-label="ผลลัพธ์การประเมินราคา">
   <div class="kp">
-   <div class="big"><span>ราคาก่อสร้างประมาณการ (รวม Factor F)</span><b id="tot"></b><small id="dl"></small></div>
+   <div class="big"><span>ราคาก่อสร้างประมาณการ (รวม Factor F)</span><b id="tot"></b><small id="dl"></small><em id="rng"></em></div>
    <div><span>บาท / ตร.ม.</span><b id="psm"></b></div><div><span>ค่าวัสดุ</span><b id="km"></b></div><div><span>ค่าแรง</span><b id="kl"></b></div>
-   <div class="sl"><label for="mo">ซื้อวัสดุในอีก <b id="mol">0 เดือน</b> (ใช้ราคาที่โมเดลพยากรณ์)</label><input id="mo" type="range" min="0" max="6" value="0"></div>
+   <div class="sl"><label for="mo">ซื้อวัสดุในอีก <b id="mol">0 เดือน</b> (ใช้ราคาที่โมเดลพยากรณ์)</label><input id="mo" type="range" min="0" max="6" value="0"><p class="hint" style="margin-top:4px">เลื่อนเพื่อเปรียบเทียบว่าถ้าชะลอการซื้อวัสดุ ต้นทุนรวมจะเปลี่ยนไปเท่าไร</p></div>
   </div>
-  <div class="tabs" role="tablist"><button class="on" data-t="boq" role="tab">ใบ BOQ</button><button data-t="fc" role="tab">พยากรณ์ราคาวัสดุ</button><button data-t="sum" role="tab">สรุปส่งลูกค้า</button><button data-t="cal" role="tab">ปรับเทียบ BOQ จริง</button></div>
-  <div class="pn t" id="p-boq">
-   <button class="cp" id="cp">คัดลอกตาราง</button><span id="cpm" class="nt"></span>
-   <p class="nt" id="kfn"></p><p class="nt" id="rsp"></p><p class="nt">แก้ราคาวัสดุและค่าแรงต่อหน่วยได้ในตารางด้านล่าง (ช่องที่แก้จะเป็นสีเหลือง และเป็นราคาสุทธิ ไม่คูณระดับวัสดุ/ภูมิภาค) <button class="cp" id="ovr" style="float:none">ล้างราคาที่แก้เอง</button></p><h2>สัดส่วนต้นทุนตามหมวดงาน</h2><div class="stk" id="stk"></div><div class="bars" id="bars"></div>
-   <div class="sc"><table id="bq"><thead><tr><th>รายการ</th><th>หน่วย</th><th>ปริมาณ</th><th>ราคาวัสดุ/หน่วย</th><th>ค่าแรง/หน่วย</th><th>รวม (บาท)</th></tr></thead><tbody id="bb"></tbody></table></div>
+  <div class="wnc" id="wn" role="status"></div>
+
+  <div class="tabs" role="tablist" aria-label="เลือกมุมมองผลลัพธ์"><button class="on" data-t="boq" role="tab" aria-selected="true">ใบ BOQ</button><button data-t="fc" role="tab" aria-selected="false">พยากรณ์ราคาวัสดุ</button><button data-t="sum" role="tab" aria-selected="false">สรุปส่งลูกค้า</button><button data-t="cal" role="tab" aria-selected="false">ปรับเทียบ BOQ จริง<span class="tg">PRO</span></button></div>
+
+  <div class="pn t" id="p-boq" role="tabpanel">
+   <h2>สัดส่วนต้นทุนตามหมวดงาน</h2>
+   <p class="nt" id="kfn"></p><p class="nt" id="rsp"></p>
+   <div class="stk" id="stk"></div><div class="bars" id="bars"></div>
+   <div class="bar" style="margin-top:24px"><h2>รายการถอดปริมาณและราคา</h2><span class="sp"></span><button class="cp" id="cp">คัดลอกตาราง</button><button class="cp" id="ovr">ล้างราคาที่แก้เอง</button><span id="cpm" class="nt" style="margin:0"></span></div>
+   <p class="nt">แก้ราคาวัสดุและค่าแรงต่อหน่วยได้ในตารางด้านล่าง (ช่องที่แก้จะเป็นสีเหลือง และเป็นราคาสุทธิ ไม่คูณระดับวัสดุ/ภูมิภาค)</p>
+   <div class="sc" style="margin-top:8px"><table id="bq"><thead><tr><th>รายการ</th><th>หน่วย</th><th>ปริมาณ</th><th>ราคาวัสดุ/หน่วย</th><th>ค่าแรง/หน่วย</th><th>รวม (บาท)</th></tr></thead><tbody id="bb"></tbody></table></div>
    <p class="nt">ปริมาณคำนวณจากอัตราส่วนเฉลี่ยของบ้านคอนกรีตเสริมเหล็ก ใช้ประเมินเบื้องต้นเท่านั้น (คลาดเคลื่อนได้ราว ±15–20%) ควรถอดแบบจริงก่อนทำสัญญา</p>
   </div>
-  <div class="pn t hid" id="p-fc">
-   <h2>แนวโน้มราคาวัสดุ 12 เดือนย้อนหลัง และพยากรณ์ 6 เดือนข้างหน้า</h2><p class="nt">ภาพรวมตลาด: ดัชนีราคาวัสดุก่อสร้างของ สนค. เดือน พ.ค. 2569 อยู่ที่ 113.8 สูงขึ้น 7.2% จากปีก่อน ตามต้นทุนพลังงานและขนส่ง และผู้ผลิตคอนกรีตผสมเสร็จรายใหญ่ปรับราคาขึ้น 300 บาท/ลบ.ม. ตั้งแต่ 1 เม.ย. 2569</p>
-   <div class="chips" id="chips"></div><div class="fs" id="fs"></div><div id="ch"></div><p class="nt" id="cap"></p>
+
+  <div class="pn t hid" id="p-fc" role="tabpanel">
+   <h2>แนวโน้มราคาวัสดุ 12 เดือนย้อนหลัง และพยากรณ์ 6 เดือนข้างหน้า</h2>
+   <p class="al info">ภาพรวมตลาด: ดัชนีราคาวัสดุก่อสร้างของ สนค. เดือน พ.ค. 2569 อยู่ที่ 113.8 สูงขึ้น 7.2% จากปีก่อน ตามต้นทุนพลังงานและขนส่ง และผู้ผลิตคอนกรีตผสมเสร็จรายใหญ่ปรับราคาขึ้น 300 บาท/ลบ.ม. ตั้งแต่ 1 เม.ย. 2569</p>
+   <div class="chips" id="chips"></div><div class="fs" id="fs"></div><div class="chw" id="ch"></div><p class="nt" id="cap"></p>
    <div class="sc" style="margin-top:12px"><table><thead><tr><th>วัสดุ</th><th>หน่วย</th><th>ราคาปัจจุบัน (แก้ไขได้)</th><th>+3 เดือน</th><th>+6 เดือน</th><th>เปลี่ยนแปลง</th><th>คำแนะนำ</th></tr></thead><tbody id="fb"></tbody></table></div>
-   <p class="nt">โมเดล: Holt damped-trend exponential smoothing พร้อมช่วงความเชื่อมั่น 80%</p><p class="nt">ป้าย “อ้างอิงจริง” คือราคาจากแหล่งที่ระบุ (วางเมาส์เพื่อดูแหล่ง) ณ 8 ต.ค. 2569 ซึ่งฝังไว้ในหน้านี้ ไม่ใช่ข้อมูลเรียลไทม์ ส่วนวัสดุอื่นเป็นประมาณการ และประวัติ 12 เดือนที่ยังไม่นำเข้าเป็นข้อมูลจำลอง</p>
-   <h2 style="margin-top:18px">นำเข้าราคาจริง และทดสอบความแม่นยำ (backtest)</h2>
+   <p class="nt">โมเดล: Holt damped-trend exponential smoothing พร้อมช่วงความเชื่อมั่น 80%</p><p class="nt">ป้าย “อ้างอิงจริง” คือราคาจากแหล่งที่ระบุ (ดูรายการแหล่งที่มาด้านล่างของหน้านี้) ณ 8 ต.ค. 2569 ซึ่งฝังไว้ในหน้านี้ ไม่ใช่ข้อมูลเรียลไทม์ ส่วนวัสดุอื่นเป็นประมาณการ และประวัติ 12 เดือนที่ยังไม่นำเข้าเป็นข้อมูลจำลอง</p>
+   <h2>นำเข้าราคาจริง และทดสอบความแม่นยำ (backtest)</h2>
    <p class="nt">เลือกวัสดุจากปุ่มด้านบน แล้ววางราคารายเดือนย้อนหลัง (เก่า → ใหม่) บรรทัดละ 1 ค่า หรือแบบ “เดือน,ราคา” อย่างน้อย 18 เดือน แนะนำ 24 เดือนขึ้นไป ค่าสุดท้ายคือเดือนปัจจุบัน (ไม่ต้องใส่ตัวคั่นหลักพัน)</p>
    <textarea id="hd" rows="5" aria-label="ราคาย้อนหลัง"></textarea>
-   <button class="pb" id="hi">นำเข้าและทดสอบ</button><button class="cp" id="hr" style="float:none">ล้างข้อมูลที่นำเข้าของวัสดุนี้</button>
+   <div class="bar"><button class="pb" id="hi">นำเข้าและทดสอบ</button><button class="cp" id="hr">ล้างข้อมูลที่นำเข้าของวัสดุนี้</button></div>
    <div id="bt"></div>
   </div>
- <div class="pn t hid" id="p-sum">
+
+  <div class="pn t hid" id="p-sum" role="tabpanel">
    <div class="noprint">
     <div class="g2"><div><label for="pj">ชื่อโครงการ</label><input id="pj" value="บ้านพักอาศัย 2 ชั้น"></div><div><label for="cl">ชื่อลูกค้า</label><input id="cl" placeholder="เช่น คุณสมชาย ใจดี"></div></div>
     <label for="nt">หมายเหตุถึงลูกค้า (ไม่บังคับ)</label><input id="nt">
-    <button class="pb" id="pr">พิมพ์ / บันทึกเป็น PDF</button><span class="nt" id="prm"></span>
+    <div class="bar" style="margin-top:6px"><button class="pb" id="pr">พิมพ์ / บันทึกเป็น PDF</button><span class="nt" id="prm" style="margin:0"></span></div>
    </div>
    <article class="sheet" id="sheet">
-    <div class="sh"><div><h3>ใบสรุปประมาณราคาก่อสร้าง</h3><div class="mu" id="s-pj"></div></div><div class="r"><div id="s-no"></div><div id="s-dt"></div></div></div>
+    <div class="sh"><div class="sb"><i><svg aria-hidden="true"><use href="#lg"/></svg></i><div><b>AI Auto-BOQ</b><span>Material Price Predictor</span></div></div><div class="r"><div id="s-no"></div><div id="s-dt"></div></div></div>
+    <h3>ใบสรุปประมาณราคาก่อสร้าง<small>CONSTRUCTION COST ESTIMATE</small></h3><div class="mu" id="s-pj"></div>
     <div class="si" id="s-info"></div>
     <div class="sv2"><div id="sv"></div><div class="sc"><table><thead><tr><th>ห้อง</th><th>ชั้น</th><th>ขนาด (ม.)</th><th>ตร.ม.</th></tr></thead><tbody id="s-rm"></tbody></table></div></div>
     <h4>สรุปค่าก่อสร้างตามหมวดงาน</h4>
     <div class="sc"><table><thead><tr><th>หมวดงาน</th><th>ค่าวัสดุ</th><th>ค่าแรง</th><th>รวม (บาท)</th></tr></thead><tbody id="s-gr"></tbody></table></div>
+    <p class="bw" id="s-tx"></p>
     <p class="nt" id="s-nt"></p>
     <h4>เงื่อนไข</h4>
     <ol class="cn"><li>ราคานี้เป็นราคาประมาณการเบื้องต้น คลาดเคลื่อนได้ราว ±15–20% และจะปรับให้ตรงเมื่อถอดแบบก่อสร้างจริง</li><li>ราคาวัสดุอ้างอิงตามวันที่ประมาณการ อาจเปลี่ยนแปลงตามภาวะตลาด</li><li>รวมค่าดำเนินการ กำไร และภาษีตาม Factor F ที่ระบุ</li><li>ไม่รวมค่าที่ดิน ค่าออกแบบ ค่าขออนุญาต งานตกแต่งภายใน เฟอร์นิเจอร์ และงานภูมิทัศน์</li></ol>
@@ -270,18 +455,51 @@ input[type=file]{padding:5px;font-size:.78rem}input[type=checkbox]{width:auto}
     <div class="sf">จัดทำด้วยระบบ AI Auto-BOQ &amp; Material Price Predictor · พัฒนาโดย Karan Buathong · โทร 080 350 9524</div>
    </article>
   </div>
- <div class="pn t hid" id="p-cal">
+
+  <div class="pn t hid" id="p-cal" role="tabpanel">
    <h2>ปรับเทียบกับ BOQ จริง</h2>
    <p class="nt">วิธีใช้: (1) กรอกผังห้องในแผงซ้ายให้ตรงกับบ้านหลังที่มี BOQ จริง (2) กรอกต้นทุนจริงรายหมวด (บาท ก่อนคูณ Factor F) (3) กดบันทึก ทำซ้ำกับบ้าน 3–5 หลัง แล้วกด “ใช้ตัวคูณเฉลี่ย” ตัวคูณคำนวณจากข้อมูลชุดเดียวกัน (in-sample) จึงยังไม่ใช่ความแม่นยำจริง ควรเก็บบ้านอีก 1–2 หลังไว้ทดสอบ</p>
    <label for="rn">ชื่อโครงการอ้างอิง</label><input id="rn" placeholder="เช่น บ้านคุณเอ">
-   <div class="sc"><table><thead><tr><th>หมวดงาน</th><th>ระบบคำนวณ (บาท)</th><th>ต้นทุนจริง (บาท)</th></tr></thead><tbody id="cg"></tbody></table></div>
+   <div class="sc" style="margin-top:10px"><table><thead><tr><th>หมวดงาน</th><th>ระบบคำนวณ (บาท)</th><th>ต้นทุนจริง (บาท)</th></tr></thead><tbody id="cg"></tbody></table></div>
    <button class="pb" id="cs">บันทึกเป็นโครงการอ้างอิง</button>
    <div class="sc"><table id="ct2"></table></div>
-   <button class="pb" id="cu">ใช้ตัวคูณเฉลี่ย</button><button class="cp" id="cx" style="float:none">ล้างตัวคูณและรายการอ้างอิง</button>
+   <div class="bar" style="margin-top:8px"><button class="pb" id="cu">ใช้ตัวคูณเฉลี่ย</button><button class="cp" id="cx">ล้างตัวคูณและรายการอ้างอิง</button></div>
    <p class="nt" id="cmsg"></p>
   </div>
  </section>
-</main><div class="cw" id="contact"><section class="ct"><div><h2>ติดต่อผู้พัฒนา</h2><p>Karan Buathong</p><p>สนใจนำระบบไปใช้งาน ปรับแต่ง หรือต่อยอด ติดต่อได้ที่เบอร์นี้</p></div><div><a class="tel" href="tel:0803509524">080 350 9524</a><button id="cpn">คัดลอกเบอร์</button><span id="cpq"></span></div></section></div><footer class="ft">ราคาวัสดุและประวัติราคาเป็นข้อมูลจำลองเพื่อสาธิต ใช้ประกอบการตัดสินใจเบื้องต้นเท่านั้น · พัฒนาโดย Karan Buathong 080 350 9524</footer>
+</main>
+
+<section class="sec dk" id="trust"><div class="wrap">
+ <span class="ey">ความโปร่งใส</span>
+ <h2 class="sh2">รู้ว่าตัวเลขมาจากไหน และเชื่อถือได้แค่ไหน</h2>
+ <p class="lead">ระบบแสดงที่มาของราคา วิธีคำนวณ และข้อจำกัด เพื่อให้คุณตัดสินใจได้อย่างมั่นใจ ไม่ใช่เชื่อโดยไม่มีเหตุผล</p>
+ <div class="tg3">
+  <div class="tcard rv"><div class="n">01</div><h3>ที่มาของราคา</h3><p>วัสดุที่มีป้าย “อ้างอิงจริง” ใช้ราคาจากแหล่งที่ระบุ ณ 8 ต.ค. 2569 ส่วนวัสดุอื่นเป็นราคาประมาณการ แก้ไขได้ทุกรายการ</p><ul id="srcl"></ul></div>
+  <div class="tcard rv"><div class="n">02</div><h3>วิธีถอดปริมาณ</h3><p>ใช้อัตราส่วนเฉลี่ยของบ้านคอนกรีตเสริมเหล็กจากพื้นที่ห้อง จำนวนชั้น ผนัง และหลังคา ไม่ได้อ่านแบบ CAD แบบละเอียด จึงเหมาะกับการประเมินเบื้องต้น</p></div>
+  <div class="tcard rv"><div class="n">03</div><h3>การพยากรณ์ราคา</h3><p>ใช้ Holt damped-trend พร้อมช่วงความเชื่อมั่น 80% และมี backtest เทียบกับวิธีง่าย ๆ ด้วยราคาย้อนหลังจริงที่คุณนำเข้า ประวัติที่ยังไม่นำเข้าเป็นข้อมูลจำลอง</p></div>
+  <div class="tcard rv"><div class="n">04</div><h3>ปรับเทียบกับงานจริง</h3><p>บันทึก BOQ จริงของโครงการที่ผ่านมา แล้วให้ระบบคำนวณตัวคูณรายหมวดเพื่อให้ผลใกล้ต้นทุนของคุณมากขึ้น พร้อมเตือนเมื่อข้อมูลยังน้อยเกินไป</p></div>
+  <div class="tcard rv"><div class="n">05</div><h3>ความเป็นส่วนตัว</h3><p>ข้อมูลโครงการที่กรอกถูกคำนวณในเบราว์เซอร์ของคุณ ไม่ถูกส่งไปเซิร์ฟเวอร์ ระบบจดจำเฉพาะโทนสีและโหมดสว่าง/มืดที่เลือกไว้</p></div>
+  <div class="tcard rv"><div class="n">06</div><h3>ขอบเขตและข้อจำกัด</h3><p>ความคลาดเคลื่อนโดยประมาณ ±15–20% ไม่รวมค่าที่ดิน ค่าออกแบบ ค่าขออนุญาต งานตกแต่งภายใน เฟอร์นิเจอร์ และภูมิทัศน์ ควรถอดแบบจริงก่อนทำสัญญา</p></div>
+ </div>
+</div></section>
+
+<section class="sec" id="faq"><div class="wrap">
+ <span class="ey">คำถามที่พบบ่อย</span>
+ <h2 class="sh2">ข้อสงสัยที่ผู้ใช้ใหม่มักถาม</h2>
+ <div class="fq">
+  <details><summary>Factor F คืออะไร</summary><p>คือตัวคูณที่รวมค่าดำเนินการ ค่าบริหารงาน กำไร ดอกเบี้ย และภาษี เข้ากับต้นทุนโดยตรง (วัสดุ + ค่าแรง) ค่าเริ่มต้น 1.27 ในระบบเป็นค่าสมมติสำหรับประเมินเบื้องต้น ควรปรับตามเงื่อนไขของโครงการจริง</p></details>
+  <details><summary>ราคานี้ใช้ทำสัญญาก่อสร้างได้หรือไม่</summary><p>ไม่ควร เพราะเป็นราคาประมาณการเบื้องต้น (คลาดเคลื่อนราว ±15–20%) ก่อนทำสัญญาควรถอดแบบจริงจากแบบก่อสร้างและขอใบเสนอราคาจากผู้รับเหมา</p></details>
+  <details><summary>ทำไมวัสดุบางตัวเป็น “ประมาณการ” ไม่ใช่ “อ้างอิงจริง”</summary><p>ป้ายอ้างอิงจริงมีเฉพาะวัสดุที่ฝังราคาจากแหล่งที่ระบุไว้แล้ว ส่วนที่เหลือเป็นราคาตั้งต้นโดยประมาณ คุณแก้ราคาได้ในตารางพยากรณ์และตาราง BOQ และนำเข้าราคาย้อนหลังจริงเพื่อให้พยากรณ์อิงข้อมูลจริงและทดสอบความแม่นยำได้</p></details>
+  <details><summary>นำเข้าผังจากไฟล์ DXF อย่างไร</summary><p>ในโปรแกรม CAD ให้บันทึกเป็น DXF แบบ ASCII (ไฟล์ DWG ต้องแปลงก่อน) โดยห้องควรเป็น polyline ปิด ระบบจะแสดงรายการห้องที่พบให้ตรวจ แก้ไข และยืนยันก่อนนำไปใช้</p></details>
+  <details><summary>บันทึกใบสรุปเป็น PDF อย่างไร</summary><p>ไปที่แท็บ “สรุปส่งลูกค้า” กรอกชื่อโครงการและชื่อลูกค้า กด “พิมพ์ / บันทึกเป็น PDF” แล้วเลือกปลายทาง “บันทึกเป็น PDF” ในหน้าต่างพิมพ์ของเบราว์เซอร์</p></details>
+  <details><summary>ข้อมูลที่กรอกถูกเก็บหรือส่งไปที่ไหน</summary><p>ระบบคำนวณในเบราว์เซอร์ของคุณและไม่ส่งข้อมูลโครงการไปเซิร์ฟเวอร์ ระบบเก็บเฉพาะโทนสีและโหมดสว่าง/มืดที่คุณเลือกไว้ในเครื่อง การรีเฟรชหน้าจะรีเซ็ตข้อมูลโครงการ</p></details>
+ </div>
+</div></section>
+
+<div class="wrap" id="contact" style="padding-bottom:24px"><section class="ct"><div><h2>ติดต่อผู้พัฒนา</h2><p>Karan Buathong</p><p>สนใจนำระบบไปใช้งาน ปรับแต่ง หรือต่อยอด ติดต่อได้ที่เบอร์นี้</p></div><div><a class="tel" href="tel:0803509524">080 350 9524</a><button id="cpn">คัดลอกเบอร์</button><span id="cpq"></span></div></section></div>
+<footer class="ft">ราคาวัสดุที่มีป้าย “อ้างอิงจริง” มาจากแหล่งที่ระบุ ส่วนราคาอื่นและประวัติราคาที่ยังไม่นำเข้าเป็นข้อมูลประมาณการ/จำลอง ใช้ประกอบการตัดสินใจเบื้องต้นเท่านั้น · พัฒนาโดย Karan Buathong 080 350 9524</footer>
+
+<div class="mbar" role="region" aria-label="สรุปราคาและทางลัด"><div><span>ราคารวมประมาณการ</span><b id="mbt">฿0</b></div><button data-go="in">กรอกข้อมูล</button><button class="pr" data-go="res">ดูผลลัพธ์</button></div>
 <script>
 const $=s=>document.querySelector(s),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
 const fm=n=>Math.round(n).toLocaleString('th-TH'),f1=n=>n.toLocaleString('th-TH',{maximumFractionDigits:1}),pf=n=>n<100?n.toFixed(1):fm(n);
@@ -296,7 +514,14 @@ function holt(y,h){const a=.45,b0=.2,ph=.9;let l=y[0],b=y[1]-y[0],ss=0;for(let i
 const SH={},FC={};for(const k in MAT){SH[k]=shape(k);FC[k]=holt(SH[k],6)}
 const st={price:Object.fromEntries(Object.entries(MAT).map(([k,v])=>[k,v[2]])),sel:'conc',mo:0};
 const pr=(k,m)=>st.price[k]*(m?FC[k].f[m-1]:1);
-let rooms=[['ห้องนั่งเล่น',5,6,1,0],['ครัว',3,4,1,0],['ห้องน้ำ',1.8,2.4,1,1],['โรงรถ',3,6,1,2],['ห้องนอนใหญ่',4,5,2,0],['ห้องนอน 2',3,4,2,0],['ห้องนอน 3',3,3.5,2,0],['ห้องน้ำ',1.8,2.4,2,1],['ระเบียง',2,4,2,2]].map(([n,w,l,f,t])=>({n,w,l,f,t}));
+const mkR=a=>a.map(([n,w,l,f,t])=>({n,w,l,f,t}));
+const RD=[['ห้องนั่งเล่น',5,6,1,0],['ครัว',3,4,1,0],['ห้องน้ำ',1.8,2.4,1,1],['โรงรถ',3,6,1,2],['ห้องนอนใหญ่',4,5,2,0],['ห้องนอน 2',3,4,2,0],['ห้องนอน 3',3,3.5,2,0],['ห้องน้ำ',1.8,2.4,2,1],['ระเบียง',2,4,2,2]];
+let rooms=mkR(RD);
+const PRE=[
+ {n:'บ้านพักอาศัย 1 ชั้น',rt:'จั่ว',s:25,r:[['ห้องนั่งเล่น',5,5,1,0],['ครัว',3,4,1,0],['ห้องนอนใหญ่',4,4.5,1,0],['ห้องนอน 2',3,3.5,1,0],['ห้องนอน 3',3,3.5,1,0],['ห้องน้ำ',1.8,2.4,1,1],['ห้องน้ำ',1.8,2.4,1,1],['โรงรถ',3,6,1,2]]},
+ {n:'บ้านพักอาศัย 2 ชั้น',rt:'จั่ว',s:25,r:RD},
+ {n:'ทาวน์โฮม 3 ชั้น',rt:'เพิงหมาแหงน',s:12,r:[['ห้องนั่งเล่น',4,5,1,0],['ครัว',3,4,1,0],['ห้องน้ำ',1.5,2,1,1],['ที่จอดรถ',3,5,1,2],['ห้องนอนใหญ่',4,5,2,0],['ห้องนอน 2',3,3.5,2,0],['ห้องน้ำ',1.8,2.4,2,1],['ห้องโถง',3,3,2,0],['ห้องนอน 3',4,4,3,0],['ห้องอเนกประสงค์',3,4,3,0],['ห้องน้ำ',1.8,2.4,3,1],['ระเบียง',2,4,3,2]]}
+];
 
 const ni=(q,d)=>{const v=parseFloat($(q).value);return v>0?v:d},
 kgm=(y,b,h,t)=>(y=='c'?t*(h+2*b+40):2*t*(b+h-2*t))*7.85e-3,
@@ -332,43 +557,53 @@ function calc(nk){
 function update(){
  const{G,A,Ab,reg,sp,F,fl,fp,H,rs}=calc(),mo=st.mo;$('#rsp').textContent='สเปกหลังคา: '+rs;let M0=0,MM=0,L=0,rows='',gs=[];
  const cost=(it,m)=>{const o=it.o||{},up=o.m!=null?o.m:(it[3]?pr(it[3],m):it[4])*(it[6]?sp:1)*reg,lb=o.l!=null?o.l:it[5]*reg,kf=it[7]||1;return{up,lb,m:it[2]*up*kf,l:it[2]*lb*kf}};
- G.forEach(([g,its])=>{let s=0,sm=0,sl=0,h='';its.forEach(it=>{const a=cost(it,0),b=cost(it,mo);M0+=a.m;MM+=b.m;L+=b.l;s+=b.m+b.l;sm+=b.m;sl+=b.l;h+=`<tr><td>${it[0]}</td><td>${it[1]}</td><td>${f1(it[2])}</td><td><input type="number" min="0" step="any" class="${it.o&&it.o.m!=null?'ov':''}" data-o="${esc(it[0])}" data-w="m" value="${+b.up.toFixed(2)}" aria-label="ราคาวัสดุต่อหน่วย ${esc(it[0])}"></td><td><input type="number" min="0" step="any" class="${it.o&&it.o.l!=null?'ov':''}" data-o="${esc(it[0])}" data-w="l" value="${+b.lb.toFixed(2)}" aria-label="ค่าแรงต่อหน่วย ${esc(it[0])}"></td><td>${fm(b.m+b.l)}</td></tr>`});gs.push([g,s,sm,sl]);rows+=`<tr class="gh"><td colspan="5">${g}${its[0][7]&&its[0][7]!=1?` · ตัวคูณปรับเทียบ ×${its[0][7].toFixed(2)}`:''}</td><td>${fm(s)}</td></tr>`+h});
+ G.forEach(([g,its])=>{let s=0,sm=0,sl=0,h='';its.forEach(it=>{const a=cost(it,0),b=cost(it,mo);M0+=a.m;MM+=b.m;L+=b.l;s+=b.m+b.l;sm+=b.m;sl+=b.l;h+=`<tr><td>${it[0]}</td><td>${it[1]}</td><td>${f1(it[2])}</td><td><input type="number" min="0" step="any" inputmode="decimal" class="${it.o&&it.o.m!=null?'ov':''}" data-o="${esc(it[0])}" data-w="m" value="${+b.up.toFixed(2)}" aria-label="ราคาวัสดุต่อหน่วย ${esc(it[0])}"></td><td><input type="number" min="0" step="any" inputmode="decimal" class="${it.o&&it.o.l!=null?'ov':''}" data-o="${esc(it[0])}" data-w="l" value="${+b.lb.toFixed(2)}" aria-label="ค่าแรงต่อหน่วย ${esc(it[0])}"></td><td>${fm(b.m+b.l)}</td></tr>`});gs.push([g,s,sm,sl]);rows+=`<tr class="gh"><td colspan="5">${g}${its[0][7]&&its[0][7]!=1?` · ตัวคูณปรับเทียบ ×${its[0][7].toFixed(2)}`:''}</td><td>${fm(s)}</td></tr>`+h});
  const D=MM+L,T=D*F,d=(MM-M0)*F;
- rows+=`<tr class="tt"><td colspan="5">รวมต้นทุนโดยตรง</td><td>${fm(D)}</td></tr><tr><td colspan="5">คูณ Factor F (${F})</td><td><b>${fm(T)}</b></td></tr>`;
+ rows+=`<tr class="tt"><td colspan="5">รวมต้นทุนโดยตรง</td><td>${fm(D)}</td></tr><tr class="gt"><td colspan="5">ราคาก่อสร้างประมาณการ (คูณ Factor F ${F})</td><td>${fm(T)}</td></tr>`;
  $('#bb').innerHTML=rows;cnt(T);drawB(fl,fp,H);$('#kf').textContent=fl+' ชั้น';sheet(gs,D,T,F,A,Ab,fl,mo);cal();$('#psm').textContent=fm(T/(A||1));$('#km').textContent=fm(MM);$('#kl').textContent=fm(L);$('#ka').textContent=f1(A)+' ตร.ม.';
  $('#dl').textContent=mo?`เทียบซื้อวัสดุวันนี้ ${d>=0?'+':'−'}${fm(Math.abs(d))} บาท (${(d/(M0+L)/F*100).toFixed(1)}%)`:'ใช้ราคาวัสดุปัจจุบัน';
  $('#dl').className=d>0?'up':'';$('#mol').textContent=mo+' เดือน';
+ $('#mbt').textContent='฿'+fm(T);$('#rng').textContent='ช่วงที่ควรเผื่อ (±20%): ฿'+fm(T*.8)+' – ฿'+fm(T*1.2);
+ const nR=rooms.filter(r=>r.w>0&&r.l>0).length,wz=[];
+ $('#ra').textContent=nR?nR+' ห้อง · พื้นที่รวม '+f1(A)+' ตร.ม. · '+fl+' ชั้น':'ยังไม่มีห้องที่ระบุขนาดถูกต้อง';
+ if(!A)wz.push('ยังไม่มีห้องที่ระบุขนาดถูกต้อง กรอกกว้าง × ยาว หรือกดเลือกแบบตัวอย่างที่แผงด้านซ้าย');
+ else{const q=T/A;if(q<8000||q>35000)wz.push('ราคาต่อ ตร.ม. ('+fm(q)+' บาท) อยู่นอกช่วงเกณฑ์เตือนเบื้องต้นของระบบ (8,000–35,000 บาท/ตร.ม.) ควรตรวจสอบขนาดห้อง ราคาที่แก้เอง หรือตัวคูณปรับเทียบอีกครั้ง')}
+ $('#wn').innerHTML=wz.map(x=>`<p class="al">${x}</p>`).join('');
  $('#stk').innerHTML=gs.map(([g,s],i)=>`<b style="flex:${s};background:${GC[i]}" title="${g}"></b>`).join('');$('#bars').innerHTML=gs.map(([g,s],i)=>`<div><span>${g}</span><i style="width:${s/D*100}%;background:${GC[i]}"></i><span>${fm(s)} (${(s/D*100).toFixed(0)}%)</span></div>`).join('');
  rfc()
 }
 function rfc(){
  $('#chips').innerHTML=Object.keys(MAT).map(k=>`<button class="chip${k==st.sel?' on':''}" data-k="${k}">${MAT[k][0]}${st.real[k]?' ●':''}</button>`).join('');
  $('#fb').innerHTML=Object.keys(MAT).map(k=>{const P=st.price[k],f=FC[k].f,c=f[5]-1,adv=c>.025?['<span class="pl pu">ควรสั่งซื้อ/ล็อกราคาก่อน</span>']:c<-.025?['<span class="pl pd">รอได้ ราคามีแนวโน้มลง</span>']:['<span class="pl">ทรงตัว</span>'];
-  return`<tr><td>${MAT[k][0]} ${SRC[k]?`<span class="pl pd" title="${SRC[k]}">อ้างอิงจริง</span>`:'<span class="pl">ประมาณการ</span>'}${st.real[k]?` <span class="pl pd">ประวัติจริง ${st.real[k].length} ด.</span>`:''}</td><td>${MAT[k][1]}</td><td><input type="number" min="0" step="any" data-p="${k}" value="${P}" aria-label="ราคาปัจจุบัน ${MAT[k][0]}"></td><td>${pf(P*f[2])}</td><td>${pf(P*f[5])}</td><td class="${c>.005?'up':c<-.005?'dn':''}">${c>=0?'+':''}${(c*100).toFixed(1)}%</td><td>${adv}</td></tr>`}).join('');
+  return`<tr><td>${MAT[k][0]} ${SRC[k]?`<span class="pl pd" title="${SRC[k]}">อ้างอิงจริง</span>`:'<span class="pl">ประมาณการ</span>'}${st.real[k]?` <span class="pl pd">ประวัติจริง ${st.real[k].length} ด.</span>`:''}</td><td>${MAT[k][1]}</td><td><input type="number" min="0" step="any" inputmode="decimal" data-p="${k}" value="${P}" aria-label="ราคาปัจจุบัน ${MAT[k][0]}"></td><td>${pf(P*f[2])}</td><td>${pf(P*f[5])}</td><td class="${c>.005?'up':c<-.005?'dn':''}">${c>=0?'+':''}${(c*100).toFixed(1)}%</td><td>${adv}</td></tr>`}).join('');
  const k=st.sel,P=st.price[k],sc=a=>a.map(x=>x*P),h=sc(SH[k]),f=sc(FC[k].f),lo=sc(FC[k].lo),hi=sc(FC[k].hi),al=[...h,...lo,...hi],mn=Math.min(...al)*.97,mx=Math.max(...al)*1.03,W=640,H=260,Lm=50,T=12,B=28,X=i=>Lm+(W-Lm-10)*i/17,Y=v=>T+(H-T-B)*(1-(v-mn)/(mx-mn)),pt=(a,o)=>a.map((v,i)=>X(i+o).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
  const band=pt([h[11],...hi],11)+' '+[...lo].reverse().map((v,i)=>X(17-i).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
  let g='';for(let j=0;j<4;j++){const v=mn+(mx-mn)*j/3;g+=`<line class="ax" x1="${Lm}" x2="${W-10}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${Lm-6}" y="${Y(v)+4}" text-anchor="end">${pf(v)}</text>`}
  [2,5,8,11,14,17].forEach(i=>g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${lab(i-11)}</text>`);
- $('#ch').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="กราฟราคา ${MAT[k][0]}"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ac);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--ac);stop-opacity:0"/></linearGradient></defs>${g}<line class="ax" x1="${X(11)}" x2="${X(11)}" y1="${T}" y2="${H-B}" stroke-dasharray="3 3"/><polygon class="bd" points="${band}"/><polygon fill="url(#ga)" points="${pt(h,0)} ${X(11).toFixed(1)},${H-B} ${X(0).toFixed(1)},${H-B}"/><polyline class="lh" points="${pt(h,0)}"/><polyline class="lf" points="${pt([h[11],...f],11)}"/><circle class="gl" cx="${X(11)}" cy="${Y(h[11])}" r="10"/><circle cx="${X(11)}" cy="${Y(h[11])}" r="4.5" fill="var(--ac)"/><g id="hv" style="display:none"><line id="hl" class="ax" y1="${T}" y2="${H-B}"/><circle id="hc" r="5" style="fill:var(--cd);stroke:var(--ac);stroke-width:2"/><rect id="hb" rx="6" height="22" style="fill:var(--ink)"/><text id="ht" style="fill:var(--cd)"></text></g></svg>`;cd={h,f,X,Y,W,Lm};
- $('#cap').textContent='เส้นทึบ = ราคาย้อนหลัง · เส้นประ = พยากรณ์ · แถบฟ้า = ช่วงที่เป็นไปได้ 80% · เลื่อนเมาส์บนกราฟเพื่อดูราคารายเดือน';$('#fs').innerHTML=[['ราคาปัจจุบัน',P,''],['อีก 3 เดือน',f[2],f[2]/P-1],['อีก 6 เดือน',f[5],f[5]/P-1]].map(([a,v,c])=>`<div><span>${a}</span><b>${pf(v)}</b> <small class="${c>.005?'up':c<-.005?'dn':''}">${c===''?'บาท/'+MAT[k][1]:(c>=0?'+':'')+(c*100).toFixed(1)+'%'}</small></div>`).join('')+`<div><span>ช่วงเป็นไปได้ (6 เดือน)</span><b>${pf(lo[5])}–${pf(hi[5])}</b></div>`
+ $('#ch').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="กราฟราคา ${MAT[k][0]}"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ac);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--ac);stop-opacity:0"/></linearGradient></defs>${g}<line class="ax" x1="${X(11)}" x2="${X(11)}" y1="${T}" y2="${H-B}" stroke-dasharray="3 3"/><polygon class="bd" points="${band}"/><polygon fill="url(#ga)" points="${pt(h,0)} ${X(11).toFixed(1)},${H-B} ${X(0).toFixed(1)},${H-B}"/><polyline class="lh" points="${pt(h,0)}"/><polyline class="lf" points="${pt([h[11],...f],11)}"/><circle class="gl" cx="${X(11)}" cy="${Y(h[11])}" r="10"/><circle cx="${X(11)}" cy="${Y(h[11])}" r="4.5" fill="var(--ac)"/><g id="hv" style="display:none"><line id="hl" class="ax" y1="${T}" y2="${H-B}"/><circle id="hc" r="5" style="fill:var(--cd);stroke:var(--ac);stroke-width:2"/><rect id="hb" rx="6" height="22" style="fill:var(--ink)"/><text id="htx" style="fill:var(--cd)"></text></g></svg>`;cd={h,f,X,Y,W,Lm};
+ $('#cap').textContent='เส้นทึบ = ราคาย้อนหลัง · เส้นประ = พยากรณ์ · แถบสีจาง = ช่วงที่เป็นไปได้ 80% · เลื่อนเมาส์หรือแตะบนกราฟเพื่อดูราคารายเดือน';$('#fs').innerHTML=[['ราคาปัจจุบัน',P,''],['อีก 3 เดือน',f[2],f[2]/P-1],['อีก 6 เดือน',f[5],f[5]/P-1]].map(([a,v,c])=>`<div><span>${a}</span><b>${pf(v)}</b> <small class="${c>.005?'up':c<-.005?'dn':''}">${c===''?'บาท/'+MAT[k][1]:(c>=0?'+':'')+(c*100).toFixed(1)+'%'}</small></div>`).join('')+`<div><span>ช่วงเป็นไปได้ (6 เดือน)</span><b>${pf(lo[5])}–${pf(hi[5])}</b></div>`
 }
-function rrooms(){$('#rooms').innerHTML=rooms.map((r,i)=>`<div class="rm"><input value="${esc(r.n)}" data-i="${i}" data-f="n" aria-label="ชื่อห้อง"><input type="number" step=".1" min="0" value="${r.w}" data-i="${i}" data-f="w" aria-label="กว้าง"><input type="number" step=".1" min="0" value="${r.l}" data-i="${i}" data-f="l" aria-label="ยาว"><input type="number" min="1" value="${r.f}" data-i="${i}" data-f="f" aria-label="ชั้น"><select data-i="${i}" data-f="t" aria-label="ประเภท">${['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'].map((x,j)=>`<option value="${j}"${j==r.t?' selected':''}>${x}</option>`).join('')}</select><button data-d="${i}" aria-label="ลบห้อง">×</button></div>`).join('')}
+const fld=(l,h)=>`<label class="f"><span>${l}</span>${h}</label>`;
+function rrooms(){$('#rooms').innerHTML=rooms.map((r,i)=>`<div class="rm"><input class="nm" value="${esc(r.n)}" data-i="${i}" data-f="n" aria-label="ชื่อห้อง" placeholder="ชื่อห้อง">${fld('กว้าง (ม.)',`<input type="number" inputmode="decimal" step=".1" min="0" value="${r.w}" data-i="${i}" data-f="w" aria-label="กว้าง">`)}${fld('ยาว (ม.)',`<input type="number" inputmode="decimal" step=".1" min="0" value="${r.l}" data-i="${i}" data-f="l" aria-label="ยาว">`)}${fld('ชั้น',`<input type="number" inputmode="numeric" min="1" value="${r.f}" data-i="${i}" data-f="f" aria-label="ชั้น">`)}${fld('ประเภท',`<select data-i="${i}" data-f="t" aria-label="ประเภท">${['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'].map((x,j)=>`<option value="${j}"${j==r.t?' selected':''}>${x}</option>`).join('')}</select>`)}<button class="dl" data-d="${i}" aria-label="ลบห้อง ${esc(r.n)}">ลบ</button></div>`).join('')}
 $('#sp').innerHTML=Object.keys(SPC).map(k=>`<option>${k}</option>`).join('');$('#rg').innerHTML=Object.keys(REG).map(k=>`<option>${k}</option>`).join('');
 $('#dt').textContent=lab(0);
 $('#rooms').addEventListener('input',e=>{const t=e.target,i=t.dataset.i;if(i==null)return;rooms[i][t.dataset.f]=t.dataset.f=='n'?t.value:+t.value;update()});
 $('#rooms').addEventListener('click',e=>{const d=e.target.dataset.d;if(d==null)return;rooms.splice(+d,1);rrooms();update()});
 $('#add').onclick=()=>{rooms.push({n:'ห้องใหม่',w:3,l:3,f:1,t:0});rrooms();update()};
+$('#pre').addEventListener('click',e=>{const b=e.target.closest('[data-pre]');if(!b)return;const p=PRE[+b.dataset.pre];rooms=mkR(p.r);$('#rt').value=p.rt;$('#rsl').value=p.s;$('#pj').value=p.n;st.src='';dx=null;$('#dxr').innerHTML='';rrooms();update()});
 ['#sp','#rg','#ht','#ff'].forEach(s=>$(s).addEventListener('input',update));
 $('#mo').addEventListener('input',e=>{st.mo=+e.target.value;update()});
-$('.tabs').addEventListener('click',e=>{const t=e.target.dataset.t;if(!t)return;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('#p-boq').classList.toggle('hid',t!='boq');$('#p-fc').classList.toggle('hid',t!='fc');$('#p-sum').classList.toggle('hid',t!='sum');$('#p-cal').classList.toggle('hid',t!='cal')});
+function showTab(t){document.querySelectorAll('.tabs button').forEach(b=>{const on=b.dataset.t==t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});['boq','fc','sum','cal'].forEach(x=>$('#p-'+x).classList.toggle('hid',x!=t))}
+$('.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(b)showTab(b.dataset.t)});
 $('#chips').addEventListener('click',e=>{if(e.target.dataset.k){st.sel=e.target.dataset.k;rfc()}});
 $('#fb').addEventListener('change',e=>{const k=e.target.dataset.p;if(k){st.price[k]=Math.max(0,+e.target.value)||MAT[k][2];update()}});
 $('#cp').onclick=async()=>{const t=[...document.querySelectorAll('#bq tr')].map(r=>[...r.cells].map(c=>c.querySelector('input')?c.querySelector('input').value:c.textContent).join('\t')).join('\n');try{await navigator.clipboard.writeText(t);$('#cpm').textContent=' คัดลอกแล้ว'}catch(x){$('#cpm').textContent=' คัดลอกไม่ได้ในหน้านี้'}};
 const GC=['#3B6BF0','#F08C2E','#14A58A','#8E5BD9','#E5568A','#D9A514','#6B8190'];
 let cd=null,first=true,tv=0,ct=0;
 function cnt(to){const el=$('#tot'),from=tv,id=++ct;tv=to;if(!from||matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent='฿'+fm(to);return}const t0=performance.now(),a=t=>{if(id!==ct)return;const p=Math.min(1,(t-t0)/450);el.textContent='฿'+fm(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(a)};requestAnimationFrame(a)}
-$('#ch').addEventListener('pointermove',e=>{if(!cd)return;const r=$('#ch svg').getBoundingClientRect(),x=(e.clientX-r.left)/r.width*cd.W,i=Math.max(0,Math.min(17,Math.round((x-cd.Lm)/((cd.W-cd.Lm-10)/17)))),v=i<12?cd.h[i]:cd.f[i-12],cx=cd.X(i),cy=cd.Y(v),t=lab(i-11)+'  '+pf(v)+' ฿',w=t.length*6.6+16,bx=cx+w+10>cd.W?cx-w-10:cx+10,by=Math.max(2,cy-34);
- $('#hv').style.display='';$('#hl').setAttribute('x1',cx);$('#hl').setAttribute('x2',cx);$('#hc').setAttribute('cx',cx);$('#hc').setAttribute('cy',cy);const b=$('#hb');b.setAttribute('x',bx);b.setAttribute('y',by);b.setAttribute('width',w);const tx=$('#ht');tx.setAttribute('x',bx+8);tx.setAttribute('y',by+15);tx.textContent=t});
+function tip(e){if(!cd)return;const r=$('#ch svg').getBoundingClientRect(),x=(e.clientX-r.left)/r.width*cd.W,i=Math.max(0,Math.min(17,Math.round((x-cd.Lm)/((cd.W-cd.Lm-10)/17)))),v=i<12?cd.h[i]:cd.f[i-12],cx=cd.X(i),cy=cd.Y(v),t=lab(i-11)+'  '+pf(v)+' ฿',w=t.length*6.6+16,bx=cx+w+10>cd.W?cx-w-10:cx+10,by=Math.max(2,cy-34);
+ $('#hv').style.display='';$('#hl').setAttribute('x1',cx);$('#hl').setAttribute('x2',cx);$('#hc').setAttribute('cx',cx);$('#hc').setAttribute('cy',cy);const b=$('#hb');b.setAttribute('x',bx);b.setAttribute('y',by);b.setAttribute('width',w);const tx=$('#htx');tx.setAttribute('x',bx+8);tx.setAttribute('y',by+15);tx.textContent=t}
+$('#ch').addEventListener('pointermove',tip);$('#ch').addEventListener('pointerdown',tip);
 $('#ch').addEventListener('pointerleave',()=>{const g=$('#hv');if(g)g.style.display='none'});
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const B3={w:8,d:8,h:6,r:2,fl:2,H:3},Y0=Math.PI-.6;let yaw=Y0,pit=.5,auto=!matchMedia('(prefers-reduced-motion:reduce)').matches,drag=null,run=false,vis=true,last=0;
@@ -410,6 +645,12 @@ $('#ar').onclick=()=>{auto=!auto;$('#ar').textContent=auto?'หยุดหม�
 $('#rs').onclick=()=>{yaw=Y0;pit=.5;r3()};
 if(!auto){$('#ar').textContent='หมุนอัตโนมัติ';$('#ar').setAttribute('aria-pressed','false')}
 if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting;go()}).observe(bh);
+// ตัวเลขเป็นตัวอักษรไทย (บาทถ้วน)
+function bahtText(n){n=Math.round(n);if(!(n>0))return'ศูนย์บาทถ้วน';
+ const D='ศูนย์ หนึ่ง สอง สาม สี่ ห้า หก เจ็ด แปด เก้า'.split(' '),U=['','สิบ','ร้อย','พัน','หมื่น','แสน'],
+ grp=s=>{let o='';const L=s.length;for(let i=0;i<L;i++){const d=+s[i],p=L-1-i;if(!d)continue;if(p==0&&d==1&&L>1)o+='เอ็ด';else if(p==1&&d==2)o+='ยี่สิบ';else if(p==1&&d==1)o+='สิบ';else o+=D[d]+U[p]}return o},
+ s=String(n),a=[];for(let i=s.length;i>0;i-=6)a.unshift(s.slice(Math.max(0,i-6),i));
+ return a.map((g,i)=>{const t=grp(g);return t?t+'ล้าน'.repeat(a.length-1-i):''}).join('')+'บาทถ้วน'}
 function sheet(gs,D,T,F,A,Ab,fl,mo){
  const v=q=>$(q).value.trim(),d=new Date(),R=rooms.filter(r=>r.w>0&&r.l>0),sM=sum(gs,g=>g[2]),sL=sum(gs,g=>g[3]);
  $('#s-pj').textContent=v('#pj')||'โครงการก่อสร้าง';
@@ -418,6 +659,7 @@ function sheet(gs,D,T,F,A,Ab,fl,mo){
  $('#s-info').innerHTML=[['ลูกค้า',v('#cl')||'-'],['ประเภทอาคาร','บ้านพักอาศัย '+fl+' ชั้น'],['พื้นที่ใช้สอย',f1(A)+' ตร.ม.'],['พื้นที่ก่อสร้างโดยประมาณ',f1(Ab)+' ตร.ม.'],['ระดับวัสดุตกแต่ง',$('#sp').value],['พื้นที่ก่อสร้าง',$('#rg').value],['ที่มาของผังห้อง',st.src?'นำเข้าจาก DXF และผู้ใช้ตรวจสอบแล้ว':'กรอกด้วยตนเอง'],...(st.kfOn?[['การปรับเทียบ','จาก '+st.refs.length+' โครงการอ้างอิง']]:[]),['ราคาวัสดุอ้างอิง',mo?'พยากรณ์ ณ '+lab(mo):'ราคาปัจจุบัน ('+lab(0)+')']].map(([a,b])=>`<div><span>${a}:</span> ${esc(b)}</div>`).join('');
  $('#s-rm').innerHTML=R.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.f}</td><td>${r.w}×${r.l}</td><td>${f1(r.w*r.l)}</td></tr>`).join('');
  $('#s-gr').innerHTML=gs.map(([g,t,m,l])=>`<tr><td>${g}</td><td>${fm(m)}</td><td>${fm(l)}</td><td>${fm(t)}</td></tr>`).join('')+`<tr class="tt"><td>รวมต้นทุนโดยตรง</td><td>${fm(sM)}</td><td>${fm(sL)}</td><td>${fm(D)}</td></tr><tr><td colspan="3">ค่าดำเนินการ กำไร และภาษี (Factor F ${F})</td><td>${fm(T-D)}</td></tr><tr class="gt"><td colspan="3">ราคารวมสุทธิ (บาท)</td><td>${fm(T)}</td></tr><tr><td colspan="3">เฉลี่ยต่อ ตร.ม. พื้นที่ใช้สอย</td><td>${fm(T/(A||1))}</td></tr>`;
+ $('#s-tx').textContent='จำนวนเงินตัวอักษร: ('+bahtText(T)+')';
  $('#s-nt').textContent=v('#nt')?'หมายเหตุ: '+v('#nt'):''}
 ['#pj','#cl','#nt'].forEach(q=>$(q).addEventListener('input',update));
 $('#pr').onclick=()=>{try{window.print()}catch(e){}$('#prm').textContent=' ถ้าหน้าต่างพิมพ์ไม่เปิด ให้กด Ctrl+P (Mac: ⌘+P) แล้วเลือก “บันทึกเป็น PDF”'};
@@ -426,8 +668,12 @@ const PL=['emerald','blueprint','graphite','plum'];
 function setPal(p){document.documentElement.dataset.pal=p;document.querySelectorAll('.pal button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p==p));try{localStorage.setItem('pal',p)}catch(e){}}
 document.querySelector('.pal').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setPal(b.dataset.p)});
 {let p0='emerald';try{p0=localStorage.getItem('pal')||p0}catch(e){}setPal(PL.includes(p0)?p0:'emerald')}
+$('#th').onclick=()=>{const t=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}};
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const el=document.getElementById(g.dataset.go);if(el){e.preventDefault();el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'})}});
+if(window.IntersectionObserver){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('shown');io.unobserve(x.target)}}),{threshold:.12});document.querySelectorAll('.rv').forEach(e=>io.observe(e))}else document.querySelectorAll('.rv').forEach(e=>e.classList.add('shown'));
 st.kf=[1,1,1,1,1,1,1];st.kfOn=false;st.refs=[];st.real={};st.src='';st.ov={};
 const SRC={conc:'ค่าเฉลี่ยทั้งประเทศ ส.ค. 69 ไม่รวม VAT (คอนกรีต 240 ksc) · ระบบราคาวัสดุก่อสร้าง กระทรวงพาณิชย์ ผ่าน yotathai.com',rebar:'ราคาเงินสด SD40T 10 มม. ต.ค. 69 ไม่รวม VAT (ร้านค้าส่ง) · steellead.com',steel:'ดัชนีมัธยฐานราคาเหล็กกล่อง ต.ค. 69 · steellead.com',cem:'ราคากลางกรมบัญชีกลาง ปี 69 ปูนปอร์ตแลนด์ 50 กก. ผ่านบทความ kohinter.com'};
+$('#srcl').innerHTML=Object.keys(SRC).map(k=>`<li><b>${MAT[k][0]}</b> — ${esc(SRC[k])}</li>`).join('');
 const gt=c=>c.G.map(([g,its])=>sum(its,it=>{const o=it.o||{};return it[2]*((o.m!=null?o.m:(it[3]?pr(it[3],0):it[4])*(it[6]?c.sp:1)*c.reg)+(o.l!=null?o.l:it[5]*c.reg))})),GN=calc(1).G.map(g=>g[0]),TY=['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'];
 $('#rt').addEventListener('input',()=>{if($('#rt').value!='ดาดฟ้า')$('#rsl').value=$('#rt').value=='เพิงหมาแหงน'?12:25;update()});
 document.querySelectorAll('.ri').forEach(e=>e.addEventListener('input',update));
@@ -448,7 +694,7 @@ $('#hi').onclick=()=>{const k=st.sel,y=$('#hd').value.split(/\n/).map(l=>{const 
  st.real[k]=y;const L=y[y.length-1],nz=y.map(v=>v/L);SH[k]=nz.slice(-12);FC[k]=holt(nz,6);st.price[k]=L;showBT(k,y);update()};
 $('#hr').onclick=()=>{const k=st.sel;delete st.real[k];SH[k]=shape(k);FC[k]=holt(SH[k],6);st.price[k]=MAT[k][2];$('#bt').innerHTML='';update()};
 // ---- calibration ----
-$('#cg').innerHTML=GN.map((g,i)=>`<tr><td>${g}</td><td id="cm${i}">-</td><td><input type="number" min="0" id="ca${i}" aria-label="ต้นทุนจริง ${g}"></td></tr>`).join('');
+$('#cg').innerHTML=GN.map((g,i)=>`<tr><td>${g}</td><td id="cm${i}">-</td><td><input type="number" min="0" id="ca${i}" inputmode="decimal" aria-label="ต้นทุนจริง ${g}"></td></tr>`).join('');
 function cal(){gt(calc(1)).forEach((v,i)=>{const e=$('#cm'+i);if(e)e.textContent=fm(v)});$('#kfn').textContent=st.kfOn?`ปรับเทียบจาก ${st.refs.length} โครงการอ้างอิง (ตัวคูณรายหมวด ${st.kf.map(x=>x.toFixed(2)).join(' / ')})`:''}
 function rct(){const R=st.refs;if(!R.length){$('#ct2').innerHTML='';$('#cmsg').textContent='';return}
  const mean=f=>GN.map((_,i)=>{const v=R.map(r=>r.a[i]!=null?f(r,i):null).filter(x=>x!=null);return v.length?sum(v,x=>x)/v.length:null});
@@ -500,7 +746,7 @@ function cands(D,us){
   return{on:!(c.a<1.5||c.a>300||inner>=2),n:nm,w:+w.toFixed(2),l:+l.toFixed(2),f:1,t:/น้ำ|bath|toilet|wc|ส้วม/i.test(nm)?1:/ระเบียง|โรงรถ|garage|balcony|terrace|car/i.test(nm)?2:0,a:c.a,fl:fl.join(' · ')}});
  return rows}
 function rdx(){if(!dx)return;
- $('#dxr').innerHTML=`<div class="pn" style="margin:10px 0 0;padding:10px"><b>ตรวจผลจาก DXF (${dx.rows.length} รายการ)</b><label for="du">หน่วยของไฟล์</label><select id="du">${[['auto','อัตโนมัติ'],['mm','มิลลิเมตร'],['cm','เซนติเมตร'],['m','เมตร']].map(([v,t])=>`<option value="${v}"${v==dx.u?' selected':''}>${t}</option>`).join('')}</select><p class="nt">แก้ชื่อ ขนาด ชั้น ประเภท หรือเอาเครื่องหมายถูกออกจากรายการที่ไม่ใช่ห้อง (เส้นขอบอาคาร ผนัง เฟอร์นิเจอร์) การเปลี่ยนหน่วยจะคำนวณรายการใหม่</p>${dx.rows.map((r,i)=>`<div class="rm"><input value="${esc(r.n)}" data-j="${i}" data-g="n" aria-label="ชื่อ"><input type="number" step=".01" value="${r.w}" data-j="${i}" data-g="w" aria-label="กว้าง"><input type="number" step=".01" value="${r.l}" data-j="${i}" data-g="l" aria-label="ยาว"><input type="number" min="1" value="${r.f}" data-j="${i}" data-g="f" aria-label="ชั้น"><select data-j="${i}" data-g="t" aria-label="ประเภท">${TY.map((x,j)=>`<option value="${j}"${j==r.t?' selected':''}>${x}</option>`).join('')}</select><input type="checkbox" ${r.on?'checked':''} data-j="${i}" data-g="on" aria-label="ใช้รายการนี้"></div>${r.fl?`<div class="nt" style="margin:-2px 0 6px">${r.fl}</div>`:''}`).join('')}<label style="display:flex;gap:6px;align-items:flex-start;color:var(--ink)"><input type="checkbox" id="ak"> ฉันตรวจรายการข้างต้นกับแบบแล้ว และรับผิดชอบความถูกต้อง</label><div class="g2"><button class="add" id="dp" disabled>แทนที่ผังเดิม</button><button class="add" id="da" disabled>เพิ่มต่อท้าย</button></div><p class="nt" id="ds"></p></div>`;sdx()}
+ $('#dxr').innerHTML=`<div class="pn dxp"><b>ตรวจผลจาก DXF (${dx.rows.length} รายการ)</b><label for="du">หน่วยของไฟล์</label><select id="du">${[['auto','อัตโนมัติ'],['mm','มิลลิเมตร'],['cm','เซนติเมตร'],['m','เมตร']].map(([v,t])=>`<option value="${v}"${v==dx.u?' selected':''}>${t}</option>`).join('')}</select><p class="nt">แก้ชื่อ ขนาด ชั้น ประเภท หรือเอาเครื่องหมายถูกออกจากรายการที่ไม่ใช่ห้อง (เส้นขอบอาคาร ผนัง เฟอร์นิเจอร์) การเปลี่ยนหน่วยจะคำนวณรายการใหม่</p>${dx.rows.map((r,i)=>`<div class="rm"><input class="nm" value="${esc(r.n)}" data-j="${i}" data-g="n" aria-label="ชื่อ">${fld('กว้าง (ม.)',`<input type="number" inputmode="decimal" step=".01" value="${r.w}" data-j="${i}" data-g="w" aria-label="กว้าง">`)}${fld('ยาว (ม.)',`<input type="number" inputmode="decimal" step=".01" value="${r.l}" data-j="${i}" data-g="l" aria-label="ยาว">`)}${fld('ชั้น',`<input type="number" inputmode="numeric" min="1" value="${r.f}" data-j="${i}" data-g="f" aria-label="ชั้น">`)}${fld('ประเภท',`<select data-j="${i}" data-g="t" aria-label="ประเภท">${TY.map((x,j)=>`<option value="${j}"${j==r.t?' selected':''}>${x}</option>`).join('')}</select>`)}<label class="ck"><input type="checkbox" ${r.on?'checked':''} data-j="${i}" data-g="on" aria-label="ใช้รายการนี้"> ใช้</label></div>${r.fl?`<div class="rn">${r.fl}</div>`:''}`).join('')}<label style="display:flex;gap:8px;align-items:flex-start;color:var(--ink);margin-top:12px"><input type="checkbox" id="ak"> ฉันตรวจรายการข้างต้นกับแบบแล้ว และรับผิดชอบความถูกต้อง</label><div class="g2" style="margin-top:8px"><button class="add" id="dp" disabled>แทนที่ผังเดิม</button><button class="add" id="da" disabled>เพิ่มต่อท้าย</button></div><p class="nt" id="ds"></p></div>`;sdx()}
 function sdx(){const sel=dx.rows.filter(r=>r.on&&r.w>0&&r.l>0),ok=$('#ak').checked&&sel.length>0;$('#dp').disabled=$('#da').disabled=!ok;$('#ds').textContent=`เลือก ${sel.length} ห้อง รวม ${f1(sum(sel,r=>r.w*r.l))} ตร.ม.`}
 $('#dxr').addEventListener('input',e=>{const t=e.target,j=t.dataset.j;if(!dx)return;if(t.id=='ak'){sdx();return}if(t.id=='du'){dx.u=t.value;dx.rows=cands(dx.D,dx.u);rdx();return}if(j==null)return;const g=t.dataset.g;dx.rows[j][g]=g=='n'?t.value:g=='on'?t.checked:+t.value;sdx()});
 $('#dxr').addEventListener('click',e=>{const id=e.target.id;if(!dx||(id!='dp'&&id!='da'))return;const n=dx.rows.filter(r=>r.on&&r.w>0&&r.l>0).map(r=>({n:r.n,w:+r.w,l:+r.l,f:Math.max(1,+r.f||1),t:+r.t}));rooms=id=='dp'?n:rooms.concat(n);st.src='DXF';rrooms();update();$('#dxr').innerHTML=`<p class="nt dn">นำเข้า ${n.length} ห้องแล้ว (ผ่านการตรวจโดยผู้ใช้)</p>`;dx=null});
