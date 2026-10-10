@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI Auto-BOQ & Material Price Predictor · ถอดแบบและประเมินราคาก่อสร้างอัตโนมัติ</title>
 <meta name="description" content="ระบบถอดแบบและประเมินราคาก่อสร้างบ้านพักอาศัยอัตโนมัติ กรอกผังห้องแล้วได้ใบ BOQ พร้อมพยากรณ์ราคาวัสดุและใบสรุปส่งลูกค้า พัฒนาโดย Karan Buathong">
-<meta name="keywords" content="BOQ, ถอดแบบ, ประเมินราคาก่อสร้าง, ราคาวัสดุก่อสร้าง, พยากรณ์ราคาวัสดุ, Factor F, ประเมินราคาบ้าน">
+<meta name="keywords" content="BOQ, ถอดแบบ, ประเมินราคาก่อสร้าง, ราคาวัสดุก่อสร้าง, พยากรณ์ราคาวัสดุ, Factor F, ประเมินราคาบ้าน, งานปรับพื้นที่, งานท่อกำจัดปลวก">
 <meta name="theme-color" content="#07382E">
 <meta property="og:type" content="website">
 <meta property="og:title" content="AI Auto-BOQ & Material Price Predictor">
@@ -42,6 +42,7 @@ button{font:inherit;cursor:pointer}
 
 /* ============ forms ============ */
 label{display:block;font-size:.8rem;font-weight:500;color:var(--mu);margin:10px 0 4px}
+.cb{display:flex;align-items:center;gap:8px;margin:12px 0 2px;font-size:.88rem;font-weight:600;color:var(--ink);cursor:pointer}
 input,select,textarea{width:100%;min-width:0;font:inherit;font-size:.9rem;padding:8px 10px;border:1px solid var(--ln);border-radius:9px;background:var(--cd2);color:var(--ink);transition:border-color .15s,box-shadow .15s}
 input:hover,select:hover,textarea:hover{border-color:color-mix(in srgb,var(--ac) 45%,var(--ln))}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
@@ -399,6 +400,31 @@ svg text{fill:var(--mu);font-size:11px}
     <p class="hint">น้ำหนักเหล็กคำนวณจากขนาดและความหนาที่กรอก × ราคา/กก. (แก้ราคาได้ในตาราง BOQ)</p>
    </div>
   </details>
+
+  <details class="pn" open><summary><span class="no">4</span><span><b>งานปรับพื้นที่และท่อกำจัดปลวก<span class="tag">ใหม่</span></b><small>เตรียมที่ดินและป้องกันปลวกก่อนเทพื้น — ติ๊กออกได้ถ้าไม่ต้องการ</small></span></summary>
+   <div class="pbody">
+    <h3 class="gh3">งานปรับพื้นที่</h3>
+    <label class="cb"><input class="ri" type="checkbox" id="gon" checked> รวมงานปรับพื้นที่ในราคา</label>
+    <div class="g2">
+     <div><label for="gar">พื้นที่ปรับ (ตร.ม.)</label><input class="ri" id="gar" type="number" min="0" step="1" placeholder="อัตโนมัติ" inputmode="decimal"></div>
+     <div><label for="gcl">สภาพพื้นที่เดิม</label><select class="ri" id="gcl"><option value=".5">โล่งเตียน</option><option value="1" selected>หญ้า / พุ่มไม้</option><option value="2">ต้นไม้ใหญ่ / ตอไม้</option></select></div>
+     <div><label for="gcu">ขุดตัดดิน (ม.)</label><input class="ri" id="gcu" type="number" min="0" max="5" step=".1" value="0" inputmode="decimal"></div>
+     <div><label for="gfl">ถมสูง (ม.)</label><input class="ri" id="gfl" type="number" min="0" max="5" step=".1" value=".5" inputmode="decimal"></div>
+     <div><label for="gft">วัสดุถม</label><select class="ri" id="gft"><option>ดินถม</option><option>ดินลูกรัง</option><option>ทรายถม</option></select></div>
+     <div><label for="gsw">ค่าเผื่อยุบตัว (เท่า)</label><input class="ri" id="gsw" type="number" min="1" max="1.6" step=".05" value="1.2" inputmode="decimal"></div>
+    </div>
+    <p class="hint">เว้นพื้นที่ปรับว่างไว้ ระบบจะใช้ตัวอาคารชั้นล่างบวกระยะรอบอาคารด้านละ 2 ม. ค่าเผื่อยุบตัวคือปริมาตรดินที่ต้องซื้อเทียบกับปริมาตรหลังบดอัด</p>
+    <h3 class="gh3">งานเดินท่อน้ำยากำจัดปลวก</h3>
+    <label class="cb"><input class="ri" type="checkbox" id="ton" checked> รวมงานท่อกำจัดปลวกในราคา</label>
+    <div class="g2">
+     <div><label for="tgs">ระยะห่างท่อใต้พื้น (ม.)</label><input class="ri" id="tgs" type="number" min="1" step=".5" value="3" inputmode="decimal"></div>
+     <div><label for="tnz">ระยะห่างหัวจ่าย (ม.)</label><input class="ri" id="tnz" type="number" min=".5" step=".5" value="2" inputmode="decimal"></div>
+     <div><label for="tlt">น้ำยาผสมแล้ว (ลิตร / ม. ท่อ)</label><input class="ri" id="tlt" type="number" min=".5" step=".5" value="4" inputmode="decimal"></div>
+    </div>
+    <label class="cb"><input class="ri" type="checkbox" id="tsl"> เพิ่มพ่นน้ำยาหน้าดินก่อนเทพื้น</label>
+    <p class="hint">ความยาวท่อประมาณจากรูปสี่เหลี่ยมเทียบเท่าพื้นที่ชั้นล่าง อาคารรูปตัว L หรือ U จะมีท่อจริงยาวกว่านี้ ราคาต่อหน่วยของสองหมวดนี้เป็นค่าตั้งต้นโดยประมาณ ไม่ใช่ราคากลาง แก้ได้ในตาราง BOQ และควรขอใบเสนอราคาจริงก่อนใช้</p>
+   </div>
+  </details>
  </aside>
 
  <section id="res" aria-label="ผลลัพธ์การประเมินราคา">
@@ -413,7 +439,7 @@ svg text{fill:var(--mu);font-size:11px}
 
   <div class="pn t" id="p-boq" role="tabpanel">
    <h2>สัดส่วนต้นทุนตามหมวดงาน</h2>
-   <p class="nt" id="kfn"></p><p class="nt" id="rsp"></p>
+   <p class="nt" id="kfn"></p><p class="nt" id="rsp"></p><p class="nt" id="xsp"></p>
    <div class="stk" id="stk"></div><div class="bars" id="bars"></div>
    <div class="bar" style="margin-top:24px"><h2>รายการถอดปริมาณและราคา</h2><span class="sp"></span><button class="cp" id="cp">คัดลอกตาราง</button><button class="cp" id="ovr">ล้างราคาที่แก้เอง</button><span id="cpm" class="nt" style="margin:0"></span></div>
    <p class="nt">แก้ราคาวัสดุและค่าแรงต่อหน่วยได้ในตารางด้านล่าง (ช่องที่แก้จะเป็นสีเหลือง และเป็นราคาสุทธิ ไม่คูณระดับวัสดุ/ภูมิภาค)</p>
@@ -450,7 +476,7 @@ svg text{fill:var(--mu);font-size:11px}
     <p class="bw" id="s-tx"></p>
     <p class="nt" id="s-nt"></p>
     <h4>เงื่อนไข</h4>
-    <ol class="cn"><li>ราคานี้เป็นราคาประมาณการเบื้องต้น คลาดเคลื่อนได้ราว ±15–20% และจะปรับให้ตรงเมื่อถอดแบบก่อสร้างจริง</li><li>ราคาวัสดุอ้างอิงตามวันที่ประมาณการ อาจเปลี่ยนแปลงตามภาวะตลาด</li><li>รวมค่าดำเนินการ กำไร และภาษีตาม Factor F ที่ระบุ</li><li>ไม่รวมค่าที่ดิน ค่าออกแบบ ค่าขออนุญาต งานตกแต่งภายใน เฟอร์นิเจอร์ และงานภูมิทัศน์</li></ol>
+    <ol class="cn"><li>ราคานี้เป็นราคาประมาณการเบื้องต้น คลาดเคลื่อนได้ราว ±15–20% และจะปรับให้ตรงเมื่อถอดแบบก่อสร้างจริง</li><li>ราคาวัสดุอ้างอิงตามวันที่ประมาณการ อาจเปลี่ยนแปลงตามภาวะตลาด</li><li>รวมค่าดำเนินการ กำไร และภาษีตาม Factor F ที่ระบุ</li><li>ไม่รวมค่าที่ดิน ค่าออกแบบ ค่าขออนุญาต งานตกแต่งภายใน เฟอร์นิเจอร์ และงานภูมิทัศน์</li><li>งานปรับพื้นที่และงานเดินท่อน้ำยากำจัดปลวก (หากรวมไว้) คำนวณจากค่าที่ระบุในระบบ ไม่ได้ตรวจสภาพดินและหน้างานจริง</li></ol>
     <div class="sg"><div>ผู้ประเมินราคา</div><div>ลูกค้า</div></div>
     <div class="sf">จัดทำด้วยระบบ AI Auto-BOQ &amp; Material Price Predictor · พัฒนาโดย Karan Buathong · โทร 080 350 9524</div>
    </article>
@@ -475,7 +501,7 @@ svg text{fill:var(--mu);font-size:11px}
  <p class="lead">ระบบแสดงที่มาของราคา วิธีคำนวณ และข้อจำกัด เพื่อให้คุณตัดสินใจได้อย่างมั่นใจ ไม่ใช่เชื่อโดยไม่มีเหตุผล</p>
  <div class="tg3">
   <div class="tcard rv"><div class="n">01</div><h3>ที่มาของราคา</h3><p>วัสดุที่มีป้าย “อ้างอิงจริง” ใช้ราคาจากแหล่งที่ระบุ ณ 8 ต.ค. 2569 ส่วนวัสดุอื่นเป็นราคาประมาณการ แก้ไขได้ทุกรายการ</p><ul id="srcl"></ul></div>
-  <div class="tcard rv"><div class="n">02</div><h3>วิธีถอดปริมาณ</h3><p>ใช้อัตราส่วนเฉลี่ยของบ้านคอนกรีตเสริมเหล็กจากพื้นที่ห้อง จำนวนชั้น ผนัง และหลังคา ไม่ได้อ่านแบบ CAD แบบละเอียด จึงเหมาะกับการประเมินเบื้องต้น</p></div>
+  <div class="tcard rv"><div class="n">02</div><h3>วิธีถอดปริมาณ</h3><p>ใช้อัตราส่วนเฉลี่ยของบ้านคอนกรีตเสริมเหล็กจากพื้นที่ห้อง จำนวนชั้น ผนัง และหลังคา ไม่ได้อ่านแบบ CAD แบบละเอียด จึงเหมาะกับการประเมินเบื้องต้น งานปรับพื้นที่และท่อกำจัดปลวกประมาณจากพื้นที่ชั้นล่างและค่าที่คุณกรอก</p></div>
   <div class="tcard rv"><div class="n">03</div><h3>การพยากรณ์ราคา</h3><p>ใช้ Holt damped-trend พร้อมช่วงความเชื่อมั่น 80% และมี backtest เทียบกับวิธีง่าย ๆ ด้วยราคาย้อนหลังจริงที่คุณนำเข้า ประวัติที่ยังไม่นำเข้าเป็นข้อมูลจำลอง</p></div>
   <div class="tcard rv"><div class="n">04</div><h3>ปรับเทียบกับงานจริง</h3><p>บันทึก BOQ จริงของโครงการที่ผ่านมา แล้วให้ระบบคำนวณตัวคูณรายหมวดเพื่อให้ผลใกล้ต้นทุนของคุณมากขึ้น พร้อมเตือนเมื่อข้อมูลยังน้อยเกินไป</p></div>
   <div class="tcard rv"><div class="n">05</div><h3>ความเป็นส่วนตัว</h3><p>ข้อมูลโครงการที่กรอกถูกคำนวณในเบราว์เซอร์ของคุณ ไม่ถูกส่งไปเซิร์ฟเวอร์ ระบบจดจำเฉพาะโทนสีและโหมดสว่าง/มืดที่เลือกไว้</p></div>
@@ -490,6 +516,7 @@ svg text{fill:var(--mu);font-size:11px}
   <details><summary>Factor F คืออะไร</summary><p>คือตัวคูณที่รวมค่าดำเนินการ ค่าบริหารงาน กำไร ดอกเบี้ย และภาษี เข้ากับต้นทุนโดยตรง (วัสดุ + ค่าแรง) ค่าเริ่มต้น 1.27 ในระบบเป็นค่าสมมติสำหรับประเมินเบื้องต้น ควรปรับตามเงื่อนไขของโครงการจริง</p></details>
   <details><summary>ราคานี้ใช้ทำสัญญาก่อสร้างได้หรือไม่</summary><p>ไม่ควร เพราะเป็นราคาประมาณการเบื้องต้น (คลาดเคลื่อนราว ±15–20%) ก่อนทำสัญญาควรถอดแบบจริงจากแบบก่อสร้างและขอใบเสนอราคาจากผู้รับเหมา</p></details>
   <details><summary>ทำไมวัสดุบางตัวเป็น “ประมาณการ” ไม่ใช่ “อ้างอิงจริง”</summary><p>ป้ายอ้างอิงจริงมีเฉพาะวัสดุที่ฝังราคาจากแหล่งที่ระบุไว้แล้ว ส่วนที่เหลือเป็นราคาตั้งต้นโดยประมาณ คุณแก้ราคาได้ในตารางพยากรณ์และตาราง BOQ และนำเข้าราคาย้อนหลังจริงเพื่อให้พยากรณ์อิงข้อมูลจริงและทดสอบความแม่นยำได้</p></details>
+  <details><summary>งานปรับพื้นที่และงานท่อกำจัดปลวกคำนวณอย่างไร</summary><p>งานปรับพื้นที่คำนวณจากพื้นที่ปรับ × ความลึกขุดและถมที่กรอก ถ้าไม่กรอกพื้นที่ ระบบใช้ตัวอาคารชั้นล่างบวกระยะรอบอาคารด้านละ 2 ม. และเผื่อดินยุบตัวตอนบดอัด งานท่อกำจัดปลวกประมาณความยาวท่อจากเส้นรอบอาคารและแนวท่อใต้พื้นตามระยะห่างที่กรอก แล้วคิดหัวจ่าย กล่องรับน้ำยา และน้ำยาฉีดครั้งแรก ราคาต่อหน่วยของสองหมวดนี้เป็นค่าตั้งต้นโดยประมาณ ไม่ใช่ราคากลาง ควรแก้ตามใบเสนอราคาจริงและสำรวจหน้างานก่อนตัดสินใจ</p></details>
   <details><summary>นำเข้าผังจากไฟล์ DXF อย่างไร</summary><p>ในโปรแกรม CAD ให้บันทึกเป็น DXF แบบ ASCII (ไฟล์ DWG ต้องแปลงก่อน) โดยห้องควรเป็น polyline ปิด ระบบจะแสดงรายการห้องที่พบให้ตรวจ แก้ไข และยืนยันก่อนนำไปใช้</p></details>
   <details><summary>บันทึกใบสรุปเป็น PDF อย่างไร</summary><p>ไปที่แท็บ “สรุปส่งลูกค้า” กรอกชื่อโครงการและชื่อลูกค้า กด “พิมพ์ / บันทึกเป็น PDF” แล้วเลือกปลายทาง “บันทึกเป็น PDF” ในหน้าต่างพิมพ์ของเบราว์เซอร์</p></details>
   <details><summary>ข้อมูลที่กรอกถูกเก็บหรือส่งไปที่ไหน</summary><p>ระบบคำนวณในเบราว์เซอร์ของคุณและไม่ส่งข้อมูลโครงการไปเซิร์ฟเวอร์ ระบบเก็บเฉพาะโทนสีและโหมดสว่าง/มืดที่คุณเลือกไว้ในเครื่อง การรีเฟรชหน้าจะรีเซ็ตข้อมูลโครงการ</p></details>
@@ -524,6 +551,7 @@ const PRE=[
 ];
 
 const ni=(q,d)=>{const v=parseFloat($(q).value);return v>0?v:d},
+n0=(q,d)=>{const v=parseFloat($(q).value);return v>=0?v:d},
 kgm=(y,b,h,t)=>(y=='c'?t*(h+2*b+40):2*t*(b+h-2*t))*7.85e-3,
 sx=(y,b,h,t)=>(y=='c'?'C ':'กล่อง ')+b+'×'+h+'×'+t+' มม.';
 function cover(){const k=$('#rc').value,t=ni('#rcm',.35);return({ctile:['กระเบื้องลอนคู่',0,120,'roof'],cconc:['กระเบื้องคอนกรีต',480,150,0],clay:['กระเบื้องเซรามิก/ดินเผา',690,180,0],metal:['เมทัลชีท',Math.round(430*t),90,0],pu:['เมทัลชีทพียูโฟม',Math.round(430*t+190),110,0]})[k]}
@@ -536,14 +564,24 @@ function roof(fp){
  return{A:A0*1.05,rg:hip?Math.max(0,w-d)+4*hl:w,gt:hip?2*(w+d):shed?w:2*w,tk,pk,CV,
   sp:k+' ลาด '+Math.round(a*180/Math.PI)+'° · '+CV[0]+(mt?' หนา '+ni('#rcm',.35)+' มม.':'')+' · โครงหลัก '+sx(y1,...s1)+' ห่าง '+ni('#ts',3)+' ม. · แป '+sx(y2,...s2)+' ห่าง '+ni('#ps',.9)+' ม. · เหล็กรวม '+fm(tk+pk)+' กก.'}}
 function calc(nk){
- const R=rooms.filter(r=>r.w>0&&r.l>0),H=+$('#ht').value||3,ar=r=>r.w*r.l,A=sum(R,ar),fl=Math.max(1,...R.map(r=>r.f)),
+ const R=rooms.filter(r=>r.w>0&&r.l>0).map(r=>({...r,f:Math.max(1,Math.min(10,Math.round(r.f)||1))})),H=+$('#ht').value||3,ar=r=>r.w*r.l,A=sum(R,ar),fl=Math.max(1,...R.map(r=>r.f)),
  fa=Array.from({length:fl},(_,i)=>sum(R.filter(r=>r.f==i+1&&r.t!=2),ar)),oa=Array.from({length:fl},(_,i)=>sum(R.filter(r=>r.f==i+1&&r.t==2),ar)),
  Ai=sum(fa,x=>x),Ao=sum(oa,x=>x),Wr=R.filter(r=>r.t==1),Ab=A*1.12,tot=fa.map((x,i)=>x+oa[i]),fp=Math.max(...tot)*1.12,top=tot[fl-1]*1.12,
  nr=R.filter(r=>r.t!=2).length,flat=$('#rt').value=='ดาดฟ้า',wa=sum(R.filter(r=>r.t!=2),r=>2*(r.w+r.l))*.55*H*.88,pa=wa*2,
  cv=1.12*(.21*Ai+.12*Ao)+.09*fp+(flat?ni('#dk',15)/100*top:0),RF=roof(fp),roofA=RF.A,wt=sum(Wr,r=>2*(r.w+r.l))*2.1*.85*1.08,tl=Ai*1.05;
+ // ---- งานปรับพื้นที่ และ งานเดินท่อน้ำยากำจัดปลวก (ค่าตั้งต้นเป็นสมมติฐาน แก้ได้ในตาราง BOQ) ----
+ const Fq=Math.max(fp,6),wq=Math.sqrt(Fq*1.3),dq=Fq/wq,GI=$('#gon').checked&&A>0,TI=$('#ton').checked&&A>0,
+ gA=Math.min(ni('#gar',(wq+4)*(dq+4)),1e6),gcl=+$('#gcl').value||1,cu=Math.min(n0('#gcu',0),5),fi=Math.min(n0('#gfl',.5),5),sw=Math.min(1.6,Math.max(1,n0('#gsw',1.2))),gty=$('#gft').value,FT={'ดินถม':200,'ดินลูกรัง':330,'ทรายถม':450}[gty]||200,
+ gradeItems=GI?[['ถางป่า ขุดตอ เก็บกวาดพื้นที่','ตร.ม.',gA,0,0,18*gcl],...(cu>0?[['ขุดตัดดินปรับระดับ','ลบ.ม.',gA*cu,0,0,90],['ขนดินส่วนเกินไปทิ้ง (ดินฟูตัว ×1.25)','ลบ.ม.',gA*cu*1.25,0,0,120]]:[]),...(fi>0?[['วัสดุถม: '+gty+' (รวมค่ายุบตัว)','ลบ.ม.',gA*fi*sw,0,FT,60],['บดอัดแน่นเป็นชั้น ๆ พร้อมรดน้ำ','ลบ.ม.',gA*fi,0,0,55]]:[]),['เกลี่ยปรับระดับผิวดิน','ตร.ม.',gA,0,0,14]]:[],
+ tP=2*(wq+dq),tsg=Math.max(1,ni('#tgs',3)),tLi=Math.max(0,Math.ceil(wq/tsg)-1)*dq+Math.max(0,Math.ceil(dq/tsg)-1)*wq,tnb=Math.max(2,Math.ceil(tP/12)),tLp=(tP+tLi)*1.1+tnb*3,tnn=Math.ceil(tLp/Math.max(.5,ni('#tnz',2))),tlt=ni('#tlt',4),
+ termItems=TI?[['ท่อ LDPE ระบบน้ำยากำจัดปลวก (รอบอาคาร + ใต้พื้น)','ม.',tLp,0,10,14],['หัวจ่ายน้ำยาและข้อต่อ','จุด',tnn,0,15,6],['กล่องรับน้ำยา / จุดเติมน้ำยา','กล่อง',tnb,0,180,120],['น้ำยากำจัดปลวกและฉีดอัดครั้งแรก','ลิตร',tLp*tlt,0,12,3],...($('#tsl').checked?[['พ่นน้ำยากันปลวกหน้าดินก่อนเทพื้น','ตร.ม.',Fq*1.1,0,30,12]]:[]),['ค่าสำรวจ ทดสอบระบบ และใบรับประกันงาน','งาน',1,0,0,2500]]:[],
+ nt=[...(GI?[['งานปรับพื้นที่','พื้นที่ปรับ '+f1(gA)+' ตร.ม.'+(ni('#gar',0)>0?'':' (อัตโนมัติ: ตัวอาคารชั้นล่าง + ระยะรอบอาคารด้านละ 2 ม.)')+' · ขุดตัด '+cu+' ม. · ถม '+fi+' ม. ด้วย'+gty]]:[]),...(TI?[['งานท่อกำจัดปลวก','ท่อรวม '+f1(tLp)+' ม. (รอบอาคาร '+f1(tP)+' ม. + ใต้พื้น '+f1(tLi)+' ม. เผื่อ 10% และท่อเข้ากล่อง) · หัวจ่าย '+tnn+' จุด · กล่อง '+tnb+' กล่อง · ประมาณจากรูปสี่เหลี่ยมเทียบเท่าพื้นที่ชั้นล่าง']]:[])],
+ ns=[...(GI?[['งานปรับพื้นที่',f1(gA)+' ตร.ม. · ถม '+fi+' ม.']]:[]),...(TI?[['งานท่อกำจัดปลวก','ท่อรวม '+f1(tLp)+' ม.']]:[])];
  // [รายการ, หน่วย, ปริมาณ, รหัสวัสดุ(พยากรณ์ได้), ราคาวัสดุคงที่, ค่าแรง/หน่วย, ปรับตามระดับวัสดุ]
  const G=[
+ ['งานปรับพื้นที่',gradeItems],
  ['งานโครงสร้างและฐานราก',[['งานขุดดินฐานราก','ลบ.ม.',fp*.8,0,0,180],['คอนกรีตผสมเสร็จ (ฐานราก เสา คาน พื้น)','ลบ.ม.',cv,'conc',0,900],['เหล็กเส้นเสริมคอนกรีต','กก.',cv*100,'rebar',0,8],['ไม้แบบและค้ำยัน','ตร.ม.',cv*6.5,0,180,220],...(fl>1?[['บันไดคอนกรีต พร้อมราวและผิวบันได','ชุด',fl-1,0,22000,9000]]:[])]],
+ ['งานเดินท่อน้ำยากำจัดปลวก',termItems],
  ['งานก่ออิฐและฉาบปูน',[['ก่ออิฐมวลเบา','ก้อน',wa*12.5*1.03,'aac',0,7],['ปูนซีเมนต์ (ก่อ+ฉาบ)','ถุง',pa*.13+wa*.04,'cem',0,0],['ทรายก่อสร้าง','ลบ.ม.',pa*.025+wa*.01,'sand',0,0],['ค่าแรงฉาบปูนเรียบ','ตร.ม.',pa,0,0,85]]],
  ['งานหลังคา',flat?[['กันซึมดาดฟ้าและทางระบายน้ำ','ตร.ม.',top,0,260,120]]:[['โครงหลังคาเหล็ก (โครงหลัก)','กก.',RF.tk,'steel',0,10],['แปเหล็กหลังคา','กก.',RF.pk,'steel',0,10],['หลังคา: '+RF.CV[0],'ตร.ม.',roofA,RF.CV[3],RF.CV[1],RF.CV[2]],['ครอบสัน/ครีบข้างหลังคา','ม.',RF.rg,0,120,60],['รางน้ำฝนและท่อรับน้ำ','ม.',RF.gt,0,180,60]]],
  ['งานพื้น ผนัง ฝ้าเพดาน',[['กระเบื้องปูพื้น','ตร.ม.',tl,'tile',0,160,1],['กระเบื้องผนังห้องน้ำ','ตร.ม.',wt,'tile',0,190,1],['ปูนกาวและยาแนว','ถุง',(tl+wt)/4.5,0,175,0],['ฝ้ายิปซัม','ตร.ม.',Ai,'gyp',0,130,1]]],
@@ -552,10 +590,10 @@ function calc(nk){
  ['งานระบบไฟฟ้าและประปา',[['สายไฟ THW','ม.',Ai*5,'wire',0,5],['จุดไฟฟ้า (โคม ปลั๊ก สวิตช์)','จุด',Math.ceil(Ai/2.2),0,380,450],['ท่อ PVC ประปา-ท่อน้ำทิ้ง','ม.',Ai*.9+Wr.length*18,'pvc',0,25]]]];
  G.forEach(([g,its])=>its.forEach(it=>{const o=st.ov[it[0]];if(o)it.o=o}));
  if(!nk&&st.kfOn)G.forEach(([g,its],gi)=>its.forEach(it=>it[7]=st.kf[gi]));
- return{G,A,Ab,fl,fp,H,rs:flat?'ดาดฟ้า พื้นหนา '+ni('#dk',15)+' ซม.':RF.sp,reg:REG[$('#rg').value],sp:SPC[$('#sp').value],F:+$('#ff').value||1}
+ return{G,A,Ab,fl,fp,H,rs:flat?'ดาดฟ้า พื้นหนา '+ni('#dk',15)+' ซม.':RF.sp,reg:REG[$('#rg').value],sp:SPC[$('#sp').value],F:+$('#ff').value||1,nt,ns}
 }
 function update(){
- const{G,A,Ab,reg,sp,F,fl,fp,H,rs}=calc(),mo=st.mo;$('#rsp').textContent='สเปกหลังคา: '+rs;let M0=0,MM=0,L=0,rows='',gs=[];
+ const{G:GA,A,Ab,reg,sp,F,fl,fp,H,rs,nt,ns}=calc(),G=GA.filter(g=>g[1].length),mo=st.mo;st.ns=ns;$('#rsp').textContent='สเปกหลังคา: '+rs;$('#xsp').innerHTML=nt.map(([a,b])=>esc(a)+': '+esc(b)).join('<br>');let M0=0,MM=0,L=0,rows='',gs=[];
  const cost=(it,m)=>{const o=it.o||{},up=o.m!=null?o.m:(it[3]?pr(it[3],m):it[4])*(it[6]?sp:1)*reg,lb=o.l!=null?o.l:it[5]*reg,kf=it[7]||1;return{up,lb,m:it[2]*up*kf,l:it[2]*lb*kf}};
  G.forEach(([g,its])=>{let s=0,sm=0,sl=0,h='';its.forEach(it=>{const a=cost(it,0),b=cost(it,mo);M0+=a.m;MM+=b.m;L+=b.l;s+=b.m+b.l;sm+=b.m;sl+=b.l;h+=`<tr><td>${it[0]}</td><td>${it[1]}</td><td>${f1(it[2])}</td><td><input type="number" min="0" step="any" inputmode="decimal" class="${it.o&&it.o.m!=null?'ov':''}" data-o="${esc(it[0])}" data-w="m" value="${+b.up.toFixed(2)}" aria-label="ราคาวัสดุต่อหน่วย ${esc(it[0])}"></td><td><input type="number" min="0" step="any" inputmode="decimal" class="${it.o&&it.o.l!=null?'ov':''}" data-o="${esc(it[0])}" data-w="l" value="${+b.lb.toFixed(2)}" aria-label="ค่าแรงต่อหน่วย ${esc(it[0])}"></td><td>${fm(b.m+b.l)}</td></tr>`});gs.push([g,s,sm,sl]);rows+=`<tr class="gh"><td colspan="5">${g}${its[0][7]&&its[0][7]!=1?` · ตัวคูณปรับเทียบ ×${its[0][7].toFixed(2)}`:''}</td><td>${fm(s)}</td></tr>`+h});
  const D=MM+L,T=D*F,d=(MM-M0)*F;
@@ -569,7 +607,7 @@ function update(){
  if(!A)wz.push('ยังไม่มีห้องที่ระบุขนาดถูกต้อง กรอกกว้าง × ยาว หรือกดเลือกแบบตัวอย่างที่แผงด้านซ้าย');
  else{const q=T/A;if(q<8000||q>35000)wz.push('ราคาต่อ ตร.ม. ('+fm(q)+' บาท) อยู่นอกช่วงเกณฑ์เตือนเบื้องต้นของระบบ (8,000–35,000 บาท/ตร.ม.) ควรตรวจสอบขนาดห้อง ราคาที่แก้เอง หรือตัวคูณปรับเทียบอีกครั้ง')}
  $('#wn').innerHTML=wz.map(x=>`<p class="al">${x}</p>`).join('');
- $('#stk').innerHTML=gs.map(([g,s],i)=>`<b style="flex:${s};background:${GC[i]}" title="${g}"></b>`).join('');$('#bars').innerHTML=gs.map(([g,s],i)=>`<div><span>${g}</span><i style="width:${s/D*100}%;background:${GC[i]}"></i><span>${fm(s)} (${(s/D*100).toFixed(0)}%)</span></div>`).join('');
+ $('#stk').innerHTML=gs.map(([g,s])=>`<b style="flex:${s};background:${gcol(g)}" title="${g}"></b>`).join('');$('#bars').innerHTML=gs.map(([g,s])=>`<div><span>${g}</span><i style="width:${s/D*100}%;background:${gcol(g)}"></i><span>${fm(s)} (${(s/D*100).toFixed(0)}%)</span></div>`).join('');
  rfc()
 }
 function rfc(){
@@ -598,7 +636,7 @@ $('.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]
 $('#chips').addEventListener('click',e=>{if(e.target.dataset.k){st.sel=e.target.dataset.k;rfc()}});
 $('#fb').addEventListener('change',e=>{const k=e.target.dataset.p;if(k){st.price[k]=Math.max(0,+e.target.value)||MAT[k][2];update()}});
 $('#cp').onclick=async()=>{const t=[...document.querySelectorAll('#bq tr')].map(r=>[...r.cells].map(c=>c.querySelector('input')?c.querySelector('input').value:c.textContent).join('\t')).join('\n');try{await navigator.clipboard.writeText(t);$('#cpm').textContent=' คัดลอกแล้ว'}catch(x){$('#cpm').textContent=' คัดลอกไม่ได้ในหน้านี้'}};
-const GC=['#3B6BF0','#F08C2E','#14A58A','#8E5BD9','#E5568A','#D9A514','#6B8190'];
+const GCOL={'งานปรับพื้นที่':'#9A6B3F','งานโครงสร้างและฐานราก':'#3B6BF0','งานเดินท่อน้ำยากำจัดปลวก':'#2E9B5B','งานก่ออิฐและฉาบปูน':'#F08C2E','งานหลังคา':'#14A58A','งานพื้น ผนัง ฝ้าเพดาน':'#8E5BD9','งานประตู หน้าต่าง สุขภัณฑ์':'#E5568A','งานสี':'#D9A514','งานระบบไฟฟ้าและประปา':'#6B8190'},gcol=g=>GCOL[g]||'#6B8190';
 let cd=null,first=true,tv=0,ct=0;
 function cnt(to){const el=$('#tot'),from=tv,id=++ct;tv=to;if(!from||matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent='฿'+fm(to);return}const t0=performance.now(),a=t=>{if(id!==ct)return;const p=Math.min(1,(t-t0)/450);el.textContent='฿'+fm(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(a)};requestAnimationFrame(a)}
 function tip(e){if(!cd)return;const r=$('#ch svg').getBoundingClientRect(),x=(e.clientX-r.left)/r.width*cd.W,i=Math.max(0,Math.min(17,Math.round((x-cd.Lm)/((cd.W-cd.Lm-10)/17)))),v=i<12?cd.h[i]:cd.f[i-12],cx=cd.X(i),cy=cd.Y(v),t=lab(i-11)+'  '+pf(v)+' ฿',w=t.length*6.6+16,bx=cx+w+10>cd.W?cx-w-10:cx+10,by=Math.max(2,cy-34);
@@ -656,7 +694,7 @@ function sheet(gs,D,T,F,A,Ab,fl,mo){
  $('#s-pj').textContent=v('#pj')||'โครงการก่อสร้าง';
  $('#s-no').textContent='เลขที่ BOQ-'+String(d.getFullYear()+543).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
  $('#s-dt').textContent='วันที่ '+d.getDate()+' '+TM[d.getMonth()]+' '+(d.getFullYear()+543);
- $('#s-info').innerHTML=[['ลูกค้า',v('#cl')||'-'],['ประเภทอาคาร','บ้านพักอาศัย '+fl+' ชั้น'],['พื้นที่ใช้สอย',f1(A)+' ตร.ม.'],['พื้นที่ก่อสร้างโดยประมาณ',f1(Ab)+' ตร.ม.'],['ระดับวัสดุตกแต่ง',$('#sp').value],['พื้นที่ก่อสร้าง',$('#rg').value],['ที่มาของผังห้อง',st.src?'นำเข้าจาก DXF และผู้ใช้ตรวจสอบแล้ว':'กรอกด้วยตนเอง'],...(st.kfOn?[['การปรับเทียบ','จาก '+st.refs.length+' โครงการอ้างอิง']]:[]),['ราคาวัสดุอ้างอิง',mo?'พยากรณ์ ณ '+lab(mo):'ราคาปัจจุบัน ('+lab(0)+')']].map(([a,b])=>`<div><span>${a}:</span> ${esc(b)}</div>`).join('');
+ $('#s-info').innerHTML=[['ลูกค้า',v('#cl')||'-'],['ประเภทอาคาร','บ้านพักอาศัย '+fl+' ชั้น'],['พื้นที่ใช้สอย',f1(A)+' ตร.ม.'],['พื้นที่ก่อสร้างโดยประมาณ',f1(Ab)+' ตร.ม.'],['ระดับวัสดุตกแต่ง',$('#sp').value],['พื้นที่ก่อสร้าง',$('#rg').value],['ที่มาของผังห้อง',st.src?'นำเข้าจาก DXF และผู้ใช้ตรวจสอบแล้ว':'กรอกด้วยตนเอง'],...(st.kfOn?[['การปรับเทียบ','จาก '+st.refs.length+' โครงการอ้างอิง']]:[]),...(st.ns||[]),['ราคาวัสดุอ้างอิง',mo?'พยากรณ์ ณ '+lab(mo):'ราคาปัจจุบัน ('+lab(0)+')']].map(([a,b])=>`<div><span>${a}:</span> ${esc(b)}</div>`).join('');
  $('#s-rm').innerHTML=R.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.f}</td><td>${r.w}×${r.l}</td><td>${f1(r.w*r.l)}</td></tr>`).join('');
  $('#s-gr').innerHTML=gs.map(([g,t,m,l])=>`<tr><td>${g}</td><td>${fm(m)}</td><td>${fm(l)}</td><td>${fm(t)}</td></tr>`).join('')+`<tr class="tt"><td>รวมต้นทุนโดยตรง</td><td>${fm(sM)}</td><td>${fm(sL)}</td><td>${fm(D)}</td></tr><tr><td colspan="3">ค่าดำเนินการ กำไร และภาษี (Factor F ${F})</td><td>${fm(T-D)}</td></tr><tr class="gt"><td colspan="3">ราคารวมสุทธิ (บาท)</td><td>${fm(T)}</td></tr><tr><td colspan="3">เฉลี่ยต่อ ตร.ม. พื้นที่ใช้สอย</td><td>${fm(T/(A||1))}</td></tr>`;
  $('#s-tx').textContent='จำนวนเงินตัวอักษร: ('+bahtText(T)+')';
@@ -671,12 +709,14 @@ document.querySelector('.pal').addEventListener('click',e=>{const b=e.target.clo
 $('#th').onclick=()=>{const t=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}};
 document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const el=document.getElementById(g.dataset.go);if(el){e.preventDefault();el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'})}});
 if(window.IntersectionObserver){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('shown');io.unobserve(x.target)}}),{threshold:.12});document.querySelectorAll('.rv').forEach(e=>io.observe(e))}else document.querySelectorAll('.rv').forEach(e=>e.classList.add('shown'));
-st.kf=[1,1,1,1,1,1,1];st.kfOn=false;st.refs=[];st.real={};st.src='';st.ov={};
+st.kf=[];st.kfOn=false;st.refs=[];st.real={};st.src='';st.ov={};st.ns=[];
 const SRC={conc:'ค่าเฉลี่ยทั้งประเทศ ส.ค. 69 ไม่รวม VAT (คอนกรีต 240 ksc) · ระบบราคาวัสดุก่อสร้าง กระทรวงพาณิชย์ ผ่าน yotathai.com',rebar:'ราคาเงินสด SD40T 10 มม. ต.ค. 69 ไม่รวม VAT (ร้านค้าส่ง) · steellead.com',steel:'ดัชนีมัธยฐานราคาเหล็กกล่อง ต.ค. 69 · steellead.com',cem:'ราคากลางกรมบัญชีกลาง ปี 69 ปูนปอร์ตแลนด์ 50 กก. ผ่านบทความ kohinter.com'};
 $('#srcl').innerHTML=Object.keys(SRC).map(k=>`<li><b>${MAT[k][0]}</b> — ${esc(SRC[k])}</li>`).join('');
 const gt=c=>c.G.map(([g,its])=>sum(its,it=>{const o=it.o||{};return it[2]*((o.m!=null?o.m:(it[3]?pr(it[3],0):it[4])*(it[6]?c.sp:1)*c.reg)+(o.l!=null?o.l:it[5]*c.reg))})),GN=calc(1).G.map(g=>g[0]),TY=['ทั่วไป','ห้องน้ำ','ระเบียง/รถ'];
+st.kf=GN.map(()=>1);
 $('#rt').addEventListener('input',()=>{if($('#rt').value!='ดาดฟ้า')$('#rsl').value=$('#rt').value=='เพิงหมาแหงน'?12:25;update()});
 document.querySelectorAll('.ri').forEach(e=>e.addEventListener('input',update));
+['#gon','#ton','#tsl'].forEach(s=>$(s).addEventListener('change',update));
 $('#bb').addEventListener('change',e=>{const k=e.target.dataset.o;if(k==null)return;const v=e.target.value.trim(),w=e.target.dataset.w,o=st.ov[k]||(st.ov[k]={});if(v===''||!(+v>=0))delete o[w];else o[w]=+v;if(!Object.keys(o).length)delete st.ov[k];update()});
 $('#ovr').onclick=()=>{st.ov={};update()};
 // ---- backtest ----
@@ -697,15 +737,15 @@ $('#hr').onclick=()=>{const k=st.sel;delete st.real[k];SH[k]=shape(k);FC[k]=holt
 $('#cg').innerHTML=GN.map((g,i)=>`<tr><td>${g}</td><td id="cm${i}">-</td><td><input type="number" min="0" id="ca${i}" inputmode="decimal" aria-label="ต้นทุนจริง ${g}"></td></tr>`).join('');
 function cal(){gt(calc(1)).forEach((v,i)=>{const e=$('#cm'+i);if(e)e.textContent=fm(v)});$('#kfn').textContent=st.kfOn?`ปรับเทียบจาก ${st.refs.length} โครงการอ้างอิง (ตัวคูณรายหมวด ${st.kf.map(x=>x.toFixed(2)).join(' / ')})`:''}
 function rct(){const R=st.refs;if(!R.length){$('#ct2').innerHTML='';$('#cmsg').textContent='';return}
- const mean=f=>GN.map((_,i)=>{const v=R.map(r=>r.a[i]!=null?f(r,i):null).filter(x=>x!=null);return v.length?sum(v,x=>x)/v.length:null});
+ const mean=f=>GN.map((_,i)=>{const v=R.filter(r=>r.a[i]!=null&&r.m[i]>0).map(r=>f(r,i));return v.length?sum(v,x=>x)/v.length:null});
  const rt=mean((r,i)=>r.a[i]/r.m[i]),ap=mean((r,i)=>Math.abs(r.m[i]-r.a[i])/r.a[i]);
- $('#ct2').innerHTML=`<thead><tr><th>โครงการ</th>${GN.map(g=>`<th>${g}</th>`).join('')}</tr></thead><tbody>${R.map(r=>`<tr><td>${esc(r.n)}</td>${GN.map((_,i)=>`<td>${r.a[i]!=null?'×'+(r.a[i]/r.m[i]).toFixed(2):'–'}</td>`).join('')}</tr>`).join('')}<tr class="tt"><td>ตัวคูณเฉลี่ย (${R.length} โครงการ)</td>${rt.map(x=>`<td>${x!=null?'×'+x.toFixed(2):'–'}</td>`).join('')}</tr><tr><td>MAPE ของระบบเดิม</td>${ap.map(x=>`<td>${x!=null?(x*100).toFixed(0)+'%':'–'}</td>`).join('')}</tr></tbody>`;
+ $('#ct2').innerHTML=`<thead><tr><th>โครงการ</th>${GN.map(g=>`<th>${g}</th>`).join('')}</tr></thead><tbody>${R.map(r=>`<tr><td>${esc(r.n)}</td>${GN.map((_,i)=>`<td>${r.a[i]!=null&&r.m[i]>0?'×'+(r.a[i]/r.m[i]).toFixed(2):'–'}</td>`).join('')}</tr>`).join('')}<tr class="tt"><td>ตัวคูณเฉลี่ย (${R.length} โครงการ)</td>${rt.map(x=>`<td>${x!=null?'×'+x.toFixed(2):'–'}</td>`).join('')}</tr><tr><td>MAPE ของระบบเดิม</td>${ap.map(x=>`<td>${x!=null?(x*100).toFixed(0)+'%':'–'}</td>`).join('')}</tr></tbody>`;
  st.cand=rt.map(x=>x==null?1:x);
  $('#cmsg').textContent=R.length<3?`มี ${R.length} โครงการ ควรมีอย่างน้อย 3–5 หลังก่อนใช้ตัวคูณ (น้อยกว่านี้ค่าเฉลี่ยยังไม่น่าเชื่อถือ)`:`มี ${R.length} โครงการ ตรวจตัวคูณที่ผิดปกติ (เช่น ต่ำกว่า 0.7 หรือสูงกว่า 1.4) ก่อนกดใช้`}
 $('#cs').onclick=()=>{const m=gt(calc(1)),a=GN.map((_,i)=>{const v=parseFloat($('#ca'+i).value);return v>0?v:null});if(a.every(x=>x==null)){$('#cmsg').textContent='กรอกต้นทุนจริงอย่างน้อย 1 หมวดก่อน';return}
  st.refs.push({n:$('#rn').value.trim()||'โครงการ '+(st.refs.length+1),m,a});GN.forEach((_,i)=>$('#ca'+i).value='');$('#rn').value='';rct()};
 $('#cu').onclick=()=>{if(!st.refs.length)return;st.kf=st.cand.slice();st.kfOn=true;update();$('#cmsg').textContent+=' · ใช้ตัวคูณแล้ว'};
-$('#cx').onclick=()=>{st.kf=[1,1,1,1,1,1,1];st.kfOn=false;st.refs=[];rct();update()};
+$('#cx').onclick=()=>{st.kf=GN.map(()=>1);st.kfOn=false;st.refs=[];rct();update()};
 // ---- DXF import ----
 let dx=null;
 const clr=t=>t.replace(/\\U\+([0-9A-Fa-f]{4})/g,(m,h)=>String.fromCharCode(parseInt(h,16))).replace(/\\P/g,' ').replace(/\\[A-Za-z][^;]*;/g,'').replace(/[{}]/g,'').trim();
